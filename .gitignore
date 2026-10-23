@@ -1,0 +1,31 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Frontend (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+frontend/.env*
+!frontend/.env.example
+
+# Backend (Python pipeline / API)
+backend/.venv/
+backend/venv/
+__pycache__/
+*.pyc
+.env
+.env.*
+!.env.example
+
+# Pipeline data — keep out of git; large and regenerable
+backend/data/raw/
+backend/data/crops/
+backend/models/*.pt
+backend/models/*.pth
+backend/models/*.onnx
+*.log
