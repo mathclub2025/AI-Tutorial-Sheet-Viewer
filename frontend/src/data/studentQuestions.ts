@@ -1,8 +1,8 @@
-import type { Question } from "@/lib/types";
+import type { Question } from "@/lib/studentTypes";
 
 /**
  * MOCK DATA — stands in for the JSON the segmentation pipeline will produce.
- * Replace by pointing NEXT_PUBLIC_API_URL at the backend (see src/lib/api.ts).
+ * Replace by pointing NEXT_PUBLIC_API_URL at the backend (see src/lib/studentApi.ts).
  */
 export const QUESTIONS: Question[] = [
   {

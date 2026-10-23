@@ -1,9 +1,31 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Bookmark, ChevronDown, ChevronRight, ChevronsUpDown, Folder, FolderPlus, Pencil, Plus, Monitor, Moon, PanelLeft, Pin, Search, Settings as Cog, SquarePen, Sun, Trash2, User } from "lucide-react";
-import { useApp } from "@/lib/store";
-import type { Conversation, Settings } from "@/lib/types";
+import Link from "next/link";
+import {
+  Bookmark,
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
+  Folder,
+  FolderPlus,
+  Pencil,
+  Plus,
+  Monitor,
+  Moon,
+  PanelLeft,
+  Pin,
+  Search,
+  Settings as Cog,
+  SquarePen,
+  Sun,
+  Trash2,
+  User,
+  Shield,
+  Home,
+} from "lucide-react";
+import { useApp } from "@/lib/studentStore";
+import type { Conversation, Settings } from "@/lib/studentTypes";
 import { Logo, useOutside } from "./ui";
 
 export function Avatar({ name, size = 36 }: { name: string; size?: number }) {
@@ -37,7 +59,7 @@ export function ThemeSwitch() {
           aria-label={label}
           title={label}
           onClick={() => updateSettings({ theme: v })}
-          className={`grid size-7 place-items-center rounded-md transition ${settings.theme === v ? "bg-brand-soft text-brand" : "text-muted hover:text-ink"}`}
+          className={`grid size-7 place-items-center rounded-md transition cursor-pointer ${settings.theme === v ? "bg-brand-soft text-brand" : "text-muted hover:text-ink"}`}
         >
           <I size={14} />
         </button>
@@ -51,7 +73,7 @@ function ProfileMenu() {
   const [open, setOpen] = useState(false);
   const ref = useOutside<HTMLDivElement>(open, () => setOpen(false));
   const label = settings.name || "Guest";
-  const row = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-surface-2";
+  const row = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-surface-2 cursor-pointer";
   return (
     <div ref={ref} className="relative">
       {open && (
@@ -71,9 +93,26 @@ function ProfileMenu() {
             <span className="flex items-center gap-3"><Sun size={16} className="text-muted" /> Theme</span>
             <ThemeSwitch />
           </div>
+          <div className="my-1 border-t border-line" />
+          <Link
+            href="/admin/upload"
+            role="menuitem"
+            className={`${row} text-muted hover:text-ink`}
+            onClick={() => setOpen(false)}
+          >
+            <Shield size={16} className="text-muted" /> Admin Portal
+          </Link>
+          <Link
+            href="/"
+            role="menuitem"
+            className={`${row} text-muted hover:text-ink`}
+            onClick={() => setOpen(false)}
+          >
+            <Home size={16} className="text-muted" /> Portal Selection
+          </Link>
         </div>
       )}
-      <button onClick={() => setOpen((v) => !v)} aria-haspopup="menu" aria-expanded={open} className="flex w-full items-center gap-3 rounded-xl border border-line bg-surface p-2.5 text-left transition hover:bg-surface-2">
+      <button onClick={() => setOpen((v) => !v)} aria-haspopup="menu" aria-expanded={open} className="flex w-full items-center gap-3 rounded-xl border border-line bg-surface p-2.5 text-left transition hover:bg-surface-2 cursor-pointer">
         <Avatar name={settings.name} />
         <span className="min-w-0 flex-1">
           <span className="block truncate text-sm font-medium">{label}</span>
@@ -100,7 +139,7 @@ function ChatRow({ c, nested = false }: { c: Conversation; nested?: boolean }) {
           if (window.innerWidth < 1024) setSidebarOpen(false);
         }}
         aria-current={active?.id === c.id}
-        className={`flex w-full items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm transition ${nested ? "pl-9" : "pl-3"} ${active?.id === c.id ? "bg-surface font-medium" : "text-ink/80 hover:bg-surface"}`}
+        className={`flex w-full items-center gap-2 rounded-lg py-2 pr-3 text-left text-sm transition cursor-pointer ${nested ? "pl-9" : "pl-3"} ${active?.id === c.id ? "bg-surface font-medium" : "text-ink/80 hover:bg-surface"}`}
       >
         {c.pinned && <Pin size={12} className="shrink-0 text-muted" />}
         <span className="truncate">{c.title}</span>
@@ -108,7 +147,7 @@ function ChatRow({ c, nested = false }: { c: Conversation; nested?: boolean }) {
       <button
         onClick={() => deleteChat(c.id)}
         aria-label={`Delete ${c.title}`}
-        className="absolute right-1.5 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-md bg-surface text-muted hover:text-orange group-hover:grid"
+        className="absolute right-1.5 top-1/2 hidden size-7 -translate-y-1/2 place-items-center rounded-md bg-surface text-muted hover:text-orange group-hover:grid cursor-pointer"
       >
         <Trash2 size={14} />
       </button>
@@ -129,7 +168,7 @@ export default function Sidebar() {
     return [["Pinned", pinned] as const, ...(["Today", "Yesterday", "Earlier"] as const).map((k) => [k, g[k] ?? []] as const)].filter(([, l]) => l.length);
   }, [conversations, projects]);
 
-  const nav = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-surface";
+  const nav = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-surface cursor-pointer";
 
   return (
     <>
@@ -148,7 +187,7 @@ export default function Sidebar() {
               <p className="text-xs text-muted">VIT Chennai</p>
             </div>
           </div>
-          <button onClick={() => setSidebarOpen(false)} aria-label="Collapse sidebar" className="grid size-8 place-items-center rounded-lg text-muted hover:bg-surface hover:text-ink">
+          <button onClick={() => setSidebarOpen(false)} aria-label="Collapse sidebar" className="grid size-8 place-items-center rounded-lg text-muted hover:bg-surface hover:text-ink cursor-pointer">
             <PanelLeft size={17} />
           </button>
         </div>
@@ -185,7 +224,7 @@ export default function Sidebar() {
                 }
                 aria-label="New project"
                 title="New project"
-                className="grid size-7 place-items-center rounded-md text-muted hover:bg-surface hover:text-ink"
+                className="grid size-7 place-items-center rounded-md text-muted hover:bg-surface hover:text-ink cursor-pointer"
               >
                 <FolderPlus size={16} />
               </button>
@@ -212,7 +251,7 @@ export default function Sidebar() {
                             newChat(p.id);
                             setOpenProjects((o) => (o.includes(p.id) ? o : [...o, p.id]));
                           }}
-                          className="grid size-7 place-items-center rounded-md text-muted hover:text-ink"
+                          className="grid size-7 place-items-center rounded-md text-muted hover:text-ink cursor-pointer"
                         >
                           <Plus size={14} />
                         </button>
@@ -220,7 +259,7 @@ export default function Sidebar() {
                           aria-label={`Rename ${p.name}`}
                           title="Rename"
                           onClick={() => openNameDialog({ title: "Rename project", initial: p.name, confirm: "Save", onSubmit: (n) => renameProject(p.id, n) })}
-                          className="grid size-7 place-items-center rounded-md text-muted hover:text-ink"
+                          className="grid size-7 place-items-center rounded-md text-muted hover:text-ink cursor-pointer"
                         >
                           <Pencil size={13} />
                         </button>
@@ -228,7 +267,7 @@ export default function Sidebar() {
                           aria-label={`Delete ${p.name}`}
                           title="Delete project (chats are kept)"
                           onClick={() => deleteProject(p.id)}
-                          className="grid size-7 place-items-center rounded-md text-muted hover:text-orange"
+                          className="grid size-7 place-items-center rounded-md text-muted hover:text-orange cursor-pointer"
                         >
                           <Trash2 size={13} />
                         </button>

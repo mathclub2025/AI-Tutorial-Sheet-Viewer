@@ -1,8 +1,8 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
-import { searchQuestions } from "./api";
-import type { Conversation, Message, Project, Settings } from "./types";
+import { searchQuestions } from "./studentApi";
+import type { Conversation, Message, Project, Settings } from "./studentTypes";
 
 export type SettingsTab = "profile" | "preference" | "data";
 
@@ -106,7 +106,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const toastTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   // One-time hydration from localStorage (must run client-side after mount).
-  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const saved = load<Partial<Settings> & { email?: string }>("mc.settings", {});
     if (saved.name === "Student") saved.name = ""; // placeholder from an earlier build
@@ -118,7 +117,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (window.innerWidth < 1024) setSidebarOpen(false);
     setReady(true);
   }, []);
-  /* eslint-enable react-hooks/set-state-in-effect */
 
   useEffect(() => { if (ready) save("mc.settings", settings); }, [settings, ready]);
   useEffect(() => { if (ready) save("mc.chats.v2", conversations); }, [conversations, ready]);

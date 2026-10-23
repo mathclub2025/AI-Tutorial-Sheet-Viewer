@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Bookmark, BookmarkCheck, Check } from "lucide-react";
-import { useApp } from "@/lib/store";
-import type { Question } from "@/lib/types";
+import { useApp } from "@/lib/studentStore";
+import type { Question } from "@/lib/studentTypes";
 import { Chip } from "./ui";
 
 /** Cropped question image when the pipeline provides one; typeset text until then. */
@@ -57,7 +57,7 @@ export default function QuestionCard({ q, index }: { q: Question; index: number 
     setArmed(false);
   };
 
-  const btn = "rounded-lg border px-3.5 py-2 text-sm font-medium transition";
+  const btn = "rounded-lg border px-3.5 py-2 text-sm font-medium transition cursor-pointer";
 
   return (
     <article className={`rounded-xl border border-line bg-surface ${settings.compact ? "p-3.5" : "p-5"}`}>
@@ -82,7 +82,7 @@ export default function QuestionCard({ q, index }: { q: Question; index: number 
           aria-pressed={marked}
           aria-label={marked ? "Remove bookmark" : "Bookmark"}
           title={marked ? "Remove bookmark" : "Bookmark"}
-          className={`grid size-8 shrink-0 place-items-center rounded-lg transition hover:bg-surface-2 ${marked ? "text-brand" : "text-muted"}`}
+          className={`grid size-8 shrink-0 place-items-center rounded-lg transition hover:bg-surface-2 cursor-pointer ${marked ? "text-brand" : "text-muted"}`}
         >
           {marked ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
         </button>

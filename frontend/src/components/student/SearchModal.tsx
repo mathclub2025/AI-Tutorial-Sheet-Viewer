@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { MessageSquare, Search } from "lucide-react";
-import { useApp } from "@/lib/store";
+import { useApp } from "@/lib/studentStore";
 import { Modal } from "./ui";
 
 function Body() {
@@ -21,7 +21,7 @@ function Body() {
       <ul className="max-h-80 overflow-y-auto p-2">
         {list.map((c) => (
           <li key={c.id}>
-            <button onClick={() => { setActiveId(c.id); close(); }} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-surface-2">
+            <button onClick={() => { setActiveId(c.id); close(); }} className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-surface-2 cursor-pointer">
               <MessageSquare size={16} className="text-muted" /> <span className="truncate">{c.title}</span>
             </button>
           </li>
@@ -31,7 +31,7 @@ function Body() {
             {q ? (
               <>
                 No chats match.{" "}
-                <button className="font-medium text-brand underline" onClick={() => { newChat(); setDraft(q); close(); }}>Practise “{q}” instead</button>
+                <button className="font-medium text-brand underline cursor-pointer" onClick={() => { newChat(); setDraft(q); close(); }}>Practise “{q}” instead</button>
               </>
             ) : (
               "No chats yet."

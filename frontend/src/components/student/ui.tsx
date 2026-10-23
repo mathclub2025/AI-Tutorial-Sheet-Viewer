@@ -5,7 +5,16 @@ import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 export function Logo({ size = 36 }: { size?: number }) {
-  return <Image src="/logo.png" alt="Mathematics Club VIT Chennai" width={size} height={size} priority className="shrink-0 object-contain" />;
+  return (
+    <Image
+      src="/logo.png"
+      alt="Mathematics Club VIT Chennai"
+      width={size}
+      height={size}
+      priority
+      className="shrink-0 object-contain"
+    />
+  );
 }
 
 export function useOutside<T extends HTMLElement>(open: boolean, onClose: () => void) {

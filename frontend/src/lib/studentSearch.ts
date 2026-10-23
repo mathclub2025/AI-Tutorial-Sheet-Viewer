@@ -1,5 +1,5 @@
-import { QUESTIONS, SUBJECTS } from "@/data/questions";
-import type { Question, SearchResult, SourceFilter } from "./types";
+import { QUESTIONS, SUBJECTS } from "@/data/studentQuestions";
+import type { Question, SearchResult, SourceFilter } from "./studentTypes";
 
 /**
  * Lightweight local query scrubber used by the MOCK API only.
