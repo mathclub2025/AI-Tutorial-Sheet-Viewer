@@ -1,0 +1,57 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "accepted": {
+      "const": true,
+      "title": "Accepted",
+      "type": "boolean"
+    },
+    "event_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Event Id",
+      "type": "string"
+    },
+    "job_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "document_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Document Id",
+      "type": "string"
+    },
+    "document_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Document Version",
+      "type": "string"
+    },
+    "indexing_status": {
+      "enum": [
+        "pending",
+        "queued",
+        "indexed",
+        "not_applicable"
+      ],
+      "title": "Indexing Status",
+      "type": "string"
+    }
+  },
+  "required": [
+    "accepted",
+    "event_id",
+    "job_id",
+    "document_id",
+    "document_version",
+    "indexing_status"
+  ],
+  "title": "DocumentResultAck",
+  "type": "object"
+}

@@ -1,0 +1,122 @@
+{
+  "$defs": {
+    "JobFailure": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[A-Z0-9_]+$",
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "maxLength": 1000,
+          "minLength": 1,
+          "title": "Message",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "message"
+      ],
+      "title": "JobFailure",
+      "type": "object"
+    },
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Document Id",
+      "type": "string"
+    },
+    "document_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Document Version",
+      "type": "string"
+    },
+    "source_type": {
+      "$ref": "#/$defs/SourceType"
+    },
+    "client_job_key": {
+      "maxLength": 128,
+      "minLength": 8,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Client Job Key",
+      "type": "string"
+    },
+    "job_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Job Id",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "queued",
+        "processing",
+        "completed",
+        "failed"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "progress": {
+      "maximum": 100,
+      "minimum": 0,
+      "title": "Progress",
+      "type": "integer"
+    },
+    "extracted_count": {
+      "anyOf": [
+        {
+          "maximum": 100,
+          "minimum": 0,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Extracted Count"
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/JobFailure"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "document_id",
+    "document_version",
+    "source_type",
+    "client_job_key",
+    "job_id",
+    "status",
+    "progress"
+  ],
+  "title": "DocumentJobStatus",
+  "type": "object"
+}

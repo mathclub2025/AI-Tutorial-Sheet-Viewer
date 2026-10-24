@@ -1,0 +1,111 @@
+{
+  "$defs": {
+    "SearchFilters": {
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subject"
+        },
+        "module": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Module"
+        },
+        "topic": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Topic"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1990,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        },
+        "source_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "SearchFilters",
+      "type": "object"
+    },
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "query": {
+      "maxLength": 2000,
+      "minLength": 3,
+      "title": "Query",
+      "type": "string"
+    },
+    "filters": {
+      "$ref": "#/$defs/SearchFilters"
+    },
+    "limit": {
+      "default": 5,
+      "maximum": 20,
+      "minimum": 1,
+      "title": "Limit",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "query"
+  ],
+  "title": "SearchRequest",
+  "type": "object"
+}

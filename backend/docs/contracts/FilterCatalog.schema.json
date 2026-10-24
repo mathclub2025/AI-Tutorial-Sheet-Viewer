@@ -1,0 +1,104 @@
+{
+  "$defs": {
+    "SearchFilters": {
+      "additionalProperties": false,
+      "properties": {
+        "subject": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Subject"
+        },
+        "module": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Module"
+        },
+        "topic": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Topic"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1990,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        },
+        "source_type": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceType"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "SearchFilters",
+      "type": "object"
+    },
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Valid subject/module/topic combinations supplied by the data service.",
+  "properties": {
+    "combinations": {
+      "items": {
+        "$ref": "#/$defs/SearchFilters"
+      },
+      "maxItems": 5000,
+      "title": "Combinations",
+      "type": "array"
+    }
+  },
+  "required": [
+    "combinations"
+  ],
+  "title": "FilterCatalog",
+  "type": "object"
+}

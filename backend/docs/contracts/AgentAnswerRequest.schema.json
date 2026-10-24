@@ -1,0 +1,218 @@
+{
+  "$defs": {
+    "Question": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 128,
+          "minLength": 1,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "text": {
+          "maxLength": 15000,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        },
+        "subject": {
+          "maxLength": 100,
+          "minLength": 1,
+          "title": "Subject",
+          "type": "string"
+        },
+        "module": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Module"
+        },
+        "topic": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Topic"
+        },
+        "source": {
+          "$ref": "#/$defs/SourceReference"
+        },
+        "official_solution": {
+          "anyOf": [
+            {
+              "maxLength": 30000,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Official Solution"
+        },
+        "image_url": {
+          "anyOf": [
+            {
+              "maxLength": 2048,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Image Url"
+        }
+      },
+      "required": [
+        "id",
+        "text",
+        "subject",
+        "source"
+      ],
+      "title": "Question",
+      "type": "object"
+    },
+    "SourceReference": {
+      "additionalProperties": false,
+      "properties": {
+        "source_type": {
+          "$ref": "#/$defs/SourceType"
+        },
+        "document_id": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Id"
+        },
+        "document_title": {
+          "anyOf": [
+            {
+              "maxLength": 500,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Title"
+        },
+        "page_number": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Page Number"
+        },
+        "question_number": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Question Number"
+        },
+        "year": {
+          "anyOf": [
+            {
+              "maximum": 2100,
+              "minimum": 1990,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Year"
+        }
+      },
+      "required": [
+        "source_type"
+      ],
+      "title": "SourceReference",
+      "type": "object"
+    },
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "query": {
+      "title": "Query",
+      "type": "string"
+    },
+    "explanation_level": {
+      "enum": [
+        "beginner",
+        "standard",
+        "advanced"
+      ],
+      "title": "Explanation Level",
+      "type": "string"
+    },
+    "context": {
+      "items": {
+        "$ref": "#/$defs/Question"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Context",
+      "type": "array"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "query",
+    "explanation_level",
+    "context",
+    "request_id"
+  ],
+  "title": "AgentAnswerRequest",
+  "type": "object"
+}

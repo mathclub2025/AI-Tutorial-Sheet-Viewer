@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "const": "queued",
+      "title": "Status",
+      "type": "string"
+    },
+    "job_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Job Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "status",
+    "job_id"
+  ],
+  "title": "AgentDocumentJobAck",
+  "type": "object"
+}

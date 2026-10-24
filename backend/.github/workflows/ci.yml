@@ -1,0 +1,29 @@
+name: Backend checks
+on: [push, pull_request]
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -c constraints.txt -e '.[test]'
+      - run: python -m pytest
+      - run: ruff check app tests scripts
+      - run: python scripts/export_openapi.py
+      - run: python scripts/export_contracts.py
+      - run: git diff --exit-code -- docs/openapi.json docs/contracts
+  client:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --no-save typescript@7.0.2
+      - run: npx tsc frontend-client/mathclubClient.ts --strict --target ES2022 --lib ES2022,DOM --module commonjs --outDir .client-test
+      - run: node --test frontend-client/client.test.cjs
