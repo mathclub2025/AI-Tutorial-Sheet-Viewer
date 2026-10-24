@@ -1,7 +1,6 @@
 # OS / editor
 .DS_Store
 Thumbs.db
-.vscode/
 .idea/
 
 # Frontend (Next.js)
@@ -18,8 +17,6 @@ backend/.venv/
 backend/venv/
 __pycache__/
 *.pyc
-.env
-.env.*
 !.env.example
 
 # Pipeline data — keep out of git; large and regenerable
@@ -29,3 +26,5 @@ backend/models/*.pt
 backend/models/*.pth
 backend/models/*.onnx
 *.log
+config.bat
+node_modules

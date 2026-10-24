@@ -1,36 +1,44 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI-Tutorial-Sheet-Viewer - Frontend
+
+Unified Next.js application containing both the **Student Practice Portal** and the **Admin Question Review & Ingestion Desk** for the Mathematics Club, VIT Chennai.
+
+## Application Architecture & Routes
+
+- **`/` & `/student`**: **Student Practice Portal**
+  - Natural language topic search across tutorial sheets and PYQs.
+  - Interactive chat interface with step-by-step solution reveals and formula tables.
+  - Offline bookmarking, study projects, chat history, and JSON export.
+  - Discreet "Admin Portal" access link inside the profile menu.
+- **`/admin/upload`**: **Admin Question Sheet Upload Desk**
+  - Dropzone for PDF and image question papers.
+  - Academic metadata tagging (subject, sheet type, year, semester).
+- **`/admin/review`**: **Admin Batch Review Dashboard**
+  - Batch metrics, status filters (Pending, In Review, Completed), and search.
+  - Question review, formula editing, difficulty calibration, and topic tagging.
+- **`/admin/review/[batchId]`**: **Batch Detail & Question Inspector**
 
 ## Getting Started
 
-First, run the development server:
-
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Environment Variables
+Copy the example environment configuration:
+```bash
+cp .env.example .env.local
+```
+- `NEXT_PUBLIC_API_URL`: *(Optional)* Base URL of the backend ingestion/search API. Leave empty to use the built-in mock question bank and local storage.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Run Development Server
+```bash
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Production Build & Type Check
+```bash
+npx tsc --noEmit
+npm run build
+```

@@ -22,7 +22,6 @@ import {
   Trash2,
   User,
   Shield,
-  Home,
 } from "lucide-react";
 import { useApp } from "@/lib/studentStore";
 import type { Conversation, Settings } from "@/lib/studentTypes";
@@ -101,14 +100,6 @@ function ProfileMenu() {
             onClick={() => setOpen(false)}
           >
             <Shield size={16} className="text-muted" /> Admin Portal
-          </Link>
-          <Link
-            href="/"
-            role="menuitem"
-            className={`${row} text-muted hover:text-ink`}
-            onClick={() => setOpen(false)}
-          >
-            <Home size={16} className="text-muted" /> Portal Selection
           </Link>
         </div>
       )}

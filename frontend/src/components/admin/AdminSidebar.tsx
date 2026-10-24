@@ -2,13 +2,12 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   Upload,
   Layers,
   Menu,
   X,
-  LogOut,
   Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -71,7 +70,6 @@ function NavLinks({ onItemClick }: NavLinksProps) {
 }
 
 export function AdminSidebar() {
-  const router = useRouter();
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = React.useState<boolean>(false);
 
@@ -106,10 +104,6 @@ export function AdminSidebar() {
     };
   }, [mobileOpen]);
 
-  const handleSignOut = () => {
-    router.push("/");
-  };
-
   return (
     <>
       {/* 1. Mobile Top Header */}
@@ -135,15 +129,6 @@ export function AdminSidebar() {
             </span>
           </div>
         </div>
-        <button
-          type="button"
-          onClick={handleSignOut}
-          className="p-1.5 text-zinc-400 hover:text-rose-400 hover:bg-rose-950/20 rounded-md transition-colors cursor-pointer"
-          aria-label="Sign out"
-          title="Sign out"
-        >
-          <LogOut className="h-4 w-4" />
-        </button>
       </header>
 
       {/* 2. Accessible Mobile Drawer with Backdrop */}
@@ -195,21 +180,6 @@ export function AdminSidebar() {
             >
               <NavLinks onItemClick={() => setMobileOpen(false)} />
             </React.Suspense>
-
-            <div className="p-4 border-t border-white/[0.07]">
-              <button
-                type="button"
-                onClick={() => {
-                  setMobileOpen(false);
-                  handleSignOut();
-                }}
-                className="flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04] active:scale-[0.98] rounded-md transition-all cursor-pointer"
-                aria-label="Exit to Home"
-              >
-                <LogOut className="h-4 w-4" />
-                <span>Exit to Home</span>
-              </button>
-            </div>
           </div>
         </div>
       )}
@@ -241,24 +211,9 @@ export function AdminSidebar() {
         >
           <NavLinks />
         </React.Suspense>
-
-        {/* Footer: Exit to Home */}
-        <div className="p-4 border-t border-white/[0.07]">
-          <button
-            type="button"
-            onClick={handleSignOut}
-            className="flex items-center gap-2 w-full px-3 py-2 text-xs font-medium text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04] active:scale-[0.98] rounded-md transition-all cursor-pointer"
-            aria-label="Exit to Home"
-          >
-            <LogOut className="h-4 w-4" />
-            <span>Exit to Home</span>
-          </button>
-        </div>
       </aside>
     </>
   );
 }
 
-
 export default AdminSidebar;
-
