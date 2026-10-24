@@ -45,10 +45,10 @@ export default function AdminLoginPage() {
 
           <div className="pt-2 text-center">
             <Link
-              href="/"
+              href="/student"
               className="text-xs text-zinc-400 hover:text-zinc-200 transition-colors inline-flex items-center gap-1.5 cursor-pointer"
             >
-              <span>&larr;</span> Back to Portal Selection
+              <span>&larr;</span> Back to Student Portal
             </Link>
           </div>
         </CardContent>
