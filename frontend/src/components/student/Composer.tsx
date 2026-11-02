@@ -2,8 +2,8 @@
 
 import { useRef, useState } from "react";
 import { ArrowUp, Check, ChevronDown } from "lucide-react";
-import { useApp } from "@/lib/store";
-import type { SourceFilter } from "@/lib/types";
+import { useApp } from "@/lib/studentStore";
+import type { SourceFilter } from "@/lib/studentTypes";
 import { useOutside } from "./ui";
 
 const SOURCES: { v: SourceFilter; label: string }[] = [
@@ -55,7 +55,7 @@ export default function Composer({ autoFocus = false }: { autoFocus?: boolean })
             onClick={() => setMenu((v) => !v)}
             aria-haspopup="menu"
             aria-expanded={menu}
-            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm text-muted transition hover:bg-surface-2 hover:text-ink"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-sm text-muted transition hover:bg-surface-2 hover:text-ink cursor-pointer"
           >
             {current.label}
             <ChevronDown size={14} />
@@ -71,7 +71,7 @@ export default function Composer({ autoFocus = false }: { autoFocus?: boolean })
                     updateSettings({ sourceFilter: s.v });
                     setMenu(false);
                   }}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-surface-2"
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition hover:bg-surface-2 cursor-pointer"
                 >
                   {s.label}
                   {s.v === settings.sourceFilter && <Check size={15} className="text-brand" />}
@@ -84,7 +84,7 @@ export default function Composer({ autoFocus = false }: { autoFocus?: boolean })
           onClick={submit}
           disabled={!draft.trim() || loading}
           aria-label="Send"
-          className="ml-auto grid size-9 place-items-center rounded-lg bg-brand text-brand-ink transition enabled:hover:opacity-90 disabled:bg-line disabled:text-muted"
+          className="ml-auto grid size-9 place-items-center rounded-lg bg-brand text-brand-ink transition enabled:hover:opacity-90 disabled:bg-line disabled:text-muted cursor-pointer"
         >
           <ArrowUp size={18} />
         </button>

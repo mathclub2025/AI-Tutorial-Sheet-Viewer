@@ -1,53 +1,133 @@
 @import "tailwindcss";
 
-@custom-variant dark (&:where(.dark, .dark *));
+@layer base {
+  :root {
+    color-scheme: dark;
 
-/* Palette lifted from the Mathematics Club logo:
-   teal ring · orange · leaf green · gold · cream */
-:root {
-  --bg: #f5f3ec;
-  --surface: #ffffff;
-  --surface-2: #faf7ee;
-  --ink: #15323a;
-  --muted: #64797e;
-  --line: #e7e1d0;
-  --brand: #1f6f78;
-  --brand-ink: #ffffff;
-  --brand-soft: #e2eff0;
-  --orange: #e8742f;
-  --orange-soft: #fdeadd;
-  --green: #4fa64a;
-  --green-soft: #e6f3e4;
-  --gold: #f2b632;
-  --gold-soft: #fdf3d6;
-  --shadow: none;
-}
+    /* Bespoke Editorial Chalkboard & Graphite Palette */
+    --background: #0A0A0C;
+    --foreground: #F4F0EA;
 
-.dark {
-  --bg: #0c181c;
-  --surface: #12242a;
-  --surface-2: #172d34;
-  --ink: #e9f1f1;
-  --muted: #8da3a8;
-  --line: #23393f;
-  --brand: #3fb0ba;
-  --brand-ink: #062226;
-  --brand-soft: #173a40;
-  --orange: #f08a4b;
-  --orange-soft: #3a2518;
-  --green: #6cc167;
-  --green-soft: #1b3319;
-  --gold: #f5c453;
-  --gold-soft: #3a3016;
-  --shadow: none;
+    /* Sidebar Surfaces */
+    --sidebar: #0D0D10;
+    --sidebar-foreground: #F4F0EA;
+
+    /* Card & Panel Surfaces */
+    --card: #121215;
+    --card-foreground: #F4F0EA;
+
+    /* Elevated Surfaces (Dropzones, Secondary Panels) */
+    --elevated: #16161A;
+    --elevated-foreground: #F4F0EA;
+
+    --popover: #121215;
+    --popover-foreground: #F4F0EA;
+
+    /* Primary Accent: Crisp Off-White */
+    --primary: #F4F0EA;
+    --primary-foreground: #0A0A0C;
+
+    /* Secondary / Muted */
+    --secondary: #1F1F24;
+    --secondary-foreground: #F4F0EA;
+
+    --muted: #1A1A1F;
+    --muted-foreground: #A1A1AA;
+
+    /* Academic Amber Accent */
+    --accent: #E2B86B;
+    --accent-foreground: #0A0A0C;
+
+    /* Status Accents */
+    --success: #10B981;
+    --success-foreground: #FFFFFF;
+
+    --warning: #F59E0B;
+    --warning-foreground: #FFFFFF;
+
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+
+    /* Whisper-thin neutral borders */
+    --border: rgba(255, 255, 255, 0.08);
+    --input: rgba(255, 255, 255, 0.12);
+    --ring: rgba(226, 184, 107, 0.4);
+
+    --radius: 0.5rem;
+
+    /* Student Practice Portal Palette (VIT Chennai Mathematics Club identity) */
+    --bg: #f5f3ec;
+    --surface: #ffffff;
+    --surface-2: #faf7ee;
+    --ink: #15323a;
+    --student-muted: #64797e;
+    --line: #e7e1d0;
+    --brand: #1f6f78;
+    --brand-ink: #ffffff;
+    --brand-soft: #e2eff0;
+    --orange: #e8742f;
+    --orange-soft: #fdeadd;
+    --green: #4fa64a;
+    --green-soft: #e6f3e4;
+    --gold: #f2b632;
+    --gold-soft: #fdf3d6;
+  }
+
+  .dark {
+    --bg: #0c181c;
+    --surface: #12242a;
+    --surface-2: #172d34;
+    --ink: #e9f1f1;
+    --student-muted: #8da3a8;
+    --line: #23393f;
+    --brand: #3fb0ba;
+    --brand-ink: #062226;
+    --brand-soft: #173a40;
+    --orange: #f08a4b;
+    --orange-soft: #3a2518;
+    --green: #6cc167;
+    --green-soft: #1b3319;
+    --gold: #f5c453;
+    --gold-soft: #3a3016;
+  }
+
+  .student-portal {
+    --muted: var(--student-muted);
+  }
 }
 
 @theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-elevated: var(--elevated);
+  --color-elevated-foreground: var(--elevated-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Student Portal Colors */
   --color-bg: var(--bg);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
   --color-ink: var(--ink);
-  --color-muted: var(--muted);
   --color-line: var(--line);
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
@@ -58,32 +138,19 @@
   --color-green-soft: var(--green-soft);
   --color-gold: var(--gold);
   --color-gold-soft: var(--gold-soft);
-  --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
-  --shadow-card: var(--shadow);
+
+  --font-serif: var(--font-serif);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
 }
 
-html,
-body {
-  height: 100%;
-}
-
-body {
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-}
-
-::selection {
-  background: var(--gold);
-  color: #15323a;
-}
-
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--line) transparent;
-}
-
+/* Student Practice Portal Animations */
 @keyframes rise {
   from {
     opacity: 0;
@@ -132,4 +199,44 @@ body {
   .dot {
     animation: none;
   }
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: transparent;
+  color: #F4F0EA;
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-serif-heading {
+  font-family: var(--font-serif), Georgia, Cambria, "Times New Roman", Times, serif;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+
+/* Tabular figures for data density */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Dark mode custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A0A0C;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272A;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3F3F46;
 }

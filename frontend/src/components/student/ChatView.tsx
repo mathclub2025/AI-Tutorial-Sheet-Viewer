@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Folder, FolderMinus, Copy, Check, Ellipsis, Menu, Pencil, Pin, PinOff, RefreshCw, Share2, ThumbsDown, ThumbsUp, Trash2, SearchX } from "lucide-react";
-import { useApp } from "@/lib/store";
-import type { Message } from "@/lib/types";
+import { useApp } from "@/lib/studentStore";
+import type { Message } from "@/lib/studentTypes";
 import Composer from "./Composer";
 import QuestionCard from "./QuestionCard";
 import { Chip, IconBtn, Logo, useOutside } from "./ui";
@@ -12,7 +12,7 @@ function Welcome() {
   return (
     <div className="mx-auto flex min-h-full w-full max-w-2xl flex-col items-center justify-center px-4 pb-16 pt-6 text-center">
       <Logo size={64} />
-      <h1 className="mt-6 text-2xl font-semibold tracking-tight sm:text-3xl">What do you want to practise?</h1>
+      <h1 className="mt-6 text-2xl font-semibold tracking-tight sm:text-3xl text-ink">What do you want to practise?</h1>
       <p className="mt-2 max-w-md text-[15px] text-muted">
         Name a topic and get the questions on it from tutorial sheets and past papers. Answers stay hidden until you ask.
       </p>
@@ -42,8 +42,8 @@ function AssistantMessage({ m, onRetry }: { m: Message; onRetry: () => void }) {
   };
 
   return (
-    <div >
-      <p className="text-[15px] leading-7">{m.text}</p>
+    <div>
+      <p className="text-[15px] leading-7 text-ink">{m.text}</p>
       {m.result && qs.length > 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-2">
           {m.result.subject && <Chip>{m.result.subject}</Chip>}
@@ -63,7 +63,7 @@ function AssistantMessage({ m, onRetry }: { m: Message; onRetry: () => void }) {
         ))}
       </div>
       {qs.length > shown && (
-        <button onClick={() => setShown((s) => s + settings.perPage)} className="mt-4 rounded-lg border border-line px-4 py-2 text-sm font-medium transition hover:bg-surface-2">
+        <button onClick={() => setShown((s) => s + settings.perPage)} className="mt-4 rounded-lg border border-line px-4 py-2 text-sm font-medium transition hover:bg-surface-2 cursor-pointer">
           Show {Math.min(settings.perPage, qs.length - shown)} more · {qs.length - shown} left
         </button>
       )}
@@ -87,10 +87,10 @@ function ChatMenu() {
   };
   const ref = useOutside<HTMLDivElement>(open, close);
   if (!active) return null;
-  const item = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-surface-2";
+  const item = "flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition hover:bg-surface-2 cursor-pointer";
   return (
     <div ref={ref} className="relative">
-      <button onClick={() => (open ? close() : setOpen(true))} aria-label="Chat options" aria-haspopup="menu" aria-expanded={open} className="grid size-10 place-items-center rounded-lg border border-line text-muted transition hover:bg-surface-2 hover:text-ink">
+      <button onClick={() => (open ? close() : setOpen(true))} aria-label="Chat options" aria-haspopup="menu" aria-expanded={open} className="grid size-10 place-items-center rounded-lg border border-line text-muted transition hover:bg-surface-2 hover:text-ink cursor-pointer">
         <Ellipsis size={18} />
       </button>
       {open && (
@@ -158,14 +158,14 @@ export default function ChatView() {
     <div className="flex h-full min-w-0 flex-1 flex-col overflow-hidden rounded-none bg-surface lg:rounded-2xl lg:border lg:border-line">
       <header className="flex items-center gap-3 px-4 py-3 sm:px-6">
         {!sidebarOpen && (
-          <button onClick={() => setSidebarOpen(true)} aria-label="Open sidebar" className="grid size-10 place-items-center rounded-xl text-muted hover:bg-surface-2 hover:text-ink">
+          <button onClick={() => setSidebarOpen(true)} aria-label="Open sidebar" className="grid size-10 place-items-center rounded-xl text-muted hover:bg-surface-2 hover:text-ink cursor-pointer">
             <Menu size={20} />
           </button>
         )}
         <h2 className="min-w-0 flex-1 truncate text-sm font-medium text-muted">{active?.title ?? ""}</h2>
         <ChatMenu />
         {active && (
-          <button onClick={share} className="hidden h-10 items-center gap-2 rounded-lg border border-line px-4 text-sm font-medium transition hover:bg-surface-2 sm:inline-flex">
+          <button onClick={share} className="hidden h-10 items-center gap-2 rounded-lg border border-line px-4 text-sm font-medium transition hover:bg-surface-2 sm:inline-flex cursor-pointer">
             <Share2 size={16} /> Share
           </button>
         )}

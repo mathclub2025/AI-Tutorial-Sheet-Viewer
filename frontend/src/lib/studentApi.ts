@@ -1,9 +1,9 @@
-import { searchLocal } from "./search";
-import type { SearchResult, SourceFilter } from "./types";
+import { searchLocal } from "./studentSearch";
+import type { SearchResult, SourceFilter } from "./studentTypes";
 
 /**
- * Single seam between UI and backend.
- * - No NEXT_PUBLIC_API_URL  -> mock (local scrubber over src/data/questions.ts)
+ * Single seam between Student UI and backend.
+ * - No NEXT_PUBLIC_API_URL  -> mock (local scrubber over src/data/studentQuestions.ts)
  * - With it                 -> POST {url}/search  { query, source }  ->  SearchResult
  */
 const API = process.env.NEXT_PUBLIC_API_URL;

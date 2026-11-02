@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Database, Monitor, Moon, SlidersHorizontal, Sun, UserCircle2 } from "lucide-react";
-import { QUESTIONS } from "@/data/questions";
-import { SettingsTab, useApp } from "@/lib/store";
+import { QUESTIONS } from "@/data/studentQuestions";
+import { SettingsTab, useApp } from "@/lib/studentStore";
 import { Avatar } from "./Sidebar";
 import { CloseBtn, Modal, Toggle } from "./ui";
 
@@ -13,7 +13,7 @@ const TABS: { id: SettingsTab; label: string; icon: typeof Sun }[] = [
   { id: "data", label: "Study data", icon: Database },
 ];
 
-const btn = "rounded-lg border border-line px-3.5 py-2 text-sm font-medium transition hover:bg-surface-2";
+const btn = "rounded-lg border border-line px-3.5 py-2 text-sm font-medium transition hover:bg-surface-2 cursor-pointer";
 
 function Row({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
   return (
@@ -111,7 +111,7 @@ function Preference() {
       <Row title="Theme" hint="Adjust your display appearance">
         <div role="radiogroup" aria-label="Theme" className="flex rounded-lg border border-line p-0.5">
           {themes.map(({ v, i: I }) => (
-            <button key={v} role="radio" aria-checked={s.theme === v} aria-label={v} onClick={() => u({ theme: v })} className={`grid size-8 place-items-center rounded-md transition ${s.theme === v ? "bg-brand-soft text-brand" : "text-muted hover:text-ink"}`}>
+            <button key={v} role="radio" aria-checked={s.theme === v} aria-label={v} onClick={() => u({ theme: v })} className={`grid size-8 place-items-center rounded-md transition cursor-pointer ${s.theme === v ? "bg-brand-soft text-brand" : "text-muted hover:text-ink"}`}>
               <I size={15} />
             </button>
           ))}
@@ -120,7 +120,7 @@ function Preference() {
       <Row title="Questions per search" hint="Shown before “Show more”">
         <div role="radiogroup" aria-label="Questions per search" className="flex rounded-lg border border-line p-0.5">
           {([3, 5, 8] as const).map((n) => (
-            <button key={n} role="radio" aria-checked={s.perPage === n} onClick={() => u({ perPage: n })} className={`h-8 w-10 rounded-md text-sm font-medium transition ${s.perPage === n ? "bg-brand-soft text-brand" : "text-muted hover:text-ink"}`}>
+            <button key={n} role="radio" aria-checked={s.perPage === n} onClick={() => u({ perPage: n })} className={`h-8 w-10 rounded-md text-sm font-medium transition cursor-pointer ${s.perPage === n ? "bg-brand-soft text-brand" : "text-muted hover:text-ink"}`}>
               {n}
             </button>
           ))}
@@ -210,7 +210,7 @@ export default function SettingsModal() {
               key={id}
               onClick={() => openSettings(id)}
               aria-current={tab === id}
-              className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2 text-sm transition ${tab === id ? "bg-surface font-medium" : "text-muted hover:text-ink"}`}
+              className={`flex shrink-0 items-center gap-3 rounded-lg px-3 py-2 text-sm transition cursor-pointer ${tab === id ? "bg-surface font-medium" : "text-muted hover:text-ink"}`}
             >
               <I size={17} /> {label}
             </button>
