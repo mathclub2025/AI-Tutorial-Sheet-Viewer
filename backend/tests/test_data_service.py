@@ -1,5 +1,7 @@
+import hashlib
 from uuid import uuid4
 
+import httpx
 from fastapi.testclient import TestClient
 from pydantic import SecretStr
 from sqlalchemy import create_engine, func, select
@@ -18,6 +20,7 @@ from app.persistence.models import (
     QueryEventRecord,
     QuestionRecord,
 )
+from app.storage.b2 import B2Settings, B2Storage
 
 TOKEN = "person2-inbound-test-token"
 
@@ -33,6 +36,53 @@ def make_client():
     settings = DataServiceSettings(_env_file=None, person2_inbound_token=SecretStr(TOKEN))
     app = create_data_app(settings, session_factory=factory)
     return TestClient(app), factory, engine
+
+
+def make_storage_client():
+    client, factory, engine = make_client()
+    storage = B2Storage(
+        B2Settings(
+            endpoint_url="https://s3.example",
+            bucket_name="private-bucket",
+            access_key_id="test-key",
+            secret_access_key="test-secret",
+            delivery_base_url="https://worker.example",
+        ),
+        client=UploadClient(),
+    )
+    client.app.state.data_service.storage = storage
+    return client, factory, engine
+
+
+class UploadClient:
+    def __init__(self):
+        self.deleted = None
+        self.contents = b"x" * 128
+
+    def generate_presigned_url(self, operation, *, Params, ExpiresIn, HttpMethod=None):
+        return "https://s3.example/signed"
+
+    def head_object(self, *, Bucket, Key):
+        return {
+            "ContentLength": len(self.contents),
+            "ContentType": "application/pdf",
+            "ETag": '"etag"',
+        }
+
+    def get_object(self, *, Bucket, Key):
+        contents = self.contents
+
+        class Body:
+            def iter_chunks(self, chunk_size):
+                yield contents
+
+            def close(self):
+                pass
+
+        return {"Body": Body()}
+
+    def delete_object(self, *, Bucket, Key):
+        self.deleted = (Bucket, Key)
 
 
 def add_document(factory, *, document_id="doc-1", version="v1", source_type="tutorial"):
@@ -105,6 +155,103 @@ def test_data_service_requires_token_and_health_checks_database():
             client.get("/internal/v1/catalog", headers={"X-Internal-Token": "wrong"}).status_code
             == 401
         )
+    engine.dispose()
+
+
+def test_upload_lifecycle_authorizes_confirms_downloads_and_deletes_private_document():
+    client, factory, engine = make_storage_client()
+    headers = internal_headers()
+    with client:
+        authorized = client.post(
+            "/internal/v1/documents/uploads",
+            headers=headers,
+            json={
+                "external_id": "upload-doc",
+                "title": "Upload document",
+                "document_type": "tutorial_sheet",
+                "source_type": "tutorial",
+                "original_filename": "paper.pdf",
+                "mime_type": "application/pdf",
+                "file_size_bytes": 128,
+                "publication_year": 2024,
+            },
+        )
+        assert authorized.status_code == 200, authorized.text
+        assert authorized.json()["upload_url"] == "https://s3.example/signed"
+        assert authorized.json()["document_version"] == "v1"
+
+        confirmed = client.post(
+            "/internal/v1/documents/upload-doc/uploads/confirm",
+            headers=headers,
+            json={
+                "document_id": "upload-doc",
+                "document_version": "v1",
+            },
+        )
+        assert confirmed.status_code == 200, confirmed.text
+        assert confirmed.json()["status"] == "succeeded"
+        assert confirmed.json()["sha256"] == hashlib.sha256(b"x" * 128).hexdigest()
+
+        downloaded = client.get("/internal/v1/documents/upload-doc/download", headers=headers)
+        assert downloaded.status_code == 200
+        assert downloaded.json()["expires_in_seconds"] == 900
+
+        deleted = client.delete("/internal/v1/documents/upload-doc", headers=headers)
+        assert deleted.status_code == 200
+        assert deleted.json() == {"document_id": "upload-doc", "deleted": True}
+        with factory() as session:
+            assert (
+                session.scalar(select(Document).where(Document.external_id == "upload-doc")) is None
+            )
+    engine.dispose()
+
+
+def test_content_endpoint_retrieves_public_file_from_delivery_worker(monkeypatch):
+    client, factory, engine = make_storage_client()
+    add_document(factory)
+    with factory() as session:
+        object_key = session.scalar(select(Document).where(Document.external_id == "doc-1")).object_key
+
+    class WorkerClient:
+        def __init__(self, **kwargs):
+            self.closed = False
+
+        def build_request(self, method, url):
+            return httpx.Request(method, url)
+
+        def send(self, request, *, stream):
+            assert request.url == httpx.URL(f"https://worker.example/{object_key}")
+            return httpx.Response(
+                200,
+                headers={"content-type": "application/pdf", "etag": "worker-etag"},
+                content=b"%PDF-worker",
+                request=request,
+            )
+
+        def close(self):
+            self.closed = True
+
+    monkeypatch.setattr("app.data_service.api.httpx.Client", WorkerClient)
+    with client:
+        response = client.get("/internal/v1/documents/doc-1/content", headers=internal_headers())
+        assert response.status_code == 200
+        assert response.content == b"%PDF-worker"
+        assert response.headers["content-type"] == "application/pdf"
+        assert response.headers["etag"] == "worker-etag"
+    engine.dispose()
+
+
+def test_content_endpoint_rejects_private_signed_downloads():
+    client, factory, engine = make_storage_client()
+    add_document(factory)
+    with factory() as session:
+        session.scalar(select(Document).where(Document.external_id == "doc-1")).visibility = (
+            "private"
+        )
+        session.commit()
+    with client:
+        response = client.get("/internal/v1/documents/doc-1/content", headers=internal_headers())
+        assert response.status_code == 403
     engine.dispose()
 
 

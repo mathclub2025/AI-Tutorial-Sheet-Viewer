@@ -312,3 +312,54 @@ class DocumentResultAck(StrictModel):
 
 class DocumentResultResponse(DocumentResultAck):
     request_id: str
+
+
+class DocumentUploadRequest(StrictModel):
+    external_id: Identifier
+    title: str = Field(min_length=1, max_length=500)
+    document_type: Literal["question_paper", "answer_sheet", "tutorial_sheet", "other"]
+    source_type: SourceType | None = None
+    original_filename: str = Field(min_length=1, max_length=255)
+    mime_type: Literal[
+        "application/pdf",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ]
+    file_size_bytes: int = Field(gt=0, le=52_428_800, strict=True)
+    publication_year: int | None = Field(None, ge=1990, le=2100, strict=True)
+
+
+class DocumentUploadAuthorization(StrictModel):
+    document_id: Identifier
+    document_version: str
+    object_key: str
+    upload_url: str
+    required_headers: dict[str, str]
+    expires_in_seconds: int
+    max_size_bytes: int
+
+
+class DocumentUploadConfirmation(StrictModel):
+    document_id: Identifier
+    document_version: str
+    sha256: str | None = Field(None, min_length=64, max_length=64, pattern=r"^[0-9a-fA-F]{64}$")
+
+
+class DocumentUploadResponse(StrictModel):
+    document_id: Identifier
+    document_version: str
+    status: Literal["pending", "succeeded"]
+    processing_status: Literal["pending", "processing", "succeeded", "failed"]
+    indexing_status: Literal["pending", "queued", "indexed", "failed"]
+    sha256: str | None = None
+
+
+class DocumentDownloadResponse(StrictModel):
+    document_id: Identifier
+    document_version: str
+    url: str
+    expires_in_seconds: int | None = None
+
+
+class DocumentDeletionResponse(StrictModel):
+    document_id: Identifier
+    deleted: Literal[True]

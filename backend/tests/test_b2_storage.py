@@ -63,9 +63,10 @@ def test_b2_configuration_requires_all_credentials():
     with pytest.raises(ValueError, match="HTTPS origin"):
         B2Settings("http://s3.example", "bucket", "key", "secret")
     with pytest.raises(ValueError, match="configured together"):
-        StorageSettings(b2_endpoint_url="https://s3.example")
+        StorageSettings(_env_file=None, b2_endpoint_url="https://s3.example")
     with pytest.raises(ValueError, match="HTTPS origin"):
         StorageSettings(
+            _env_file=None,
             b2_endpoint_url="http://s3.example",
             b2_bucket_name="bucket",
             b2_access_key_id="key",
@@ -75,6 +76,7 @@ def test_b2_configuration_requires_all_credentials():
 
 def test_storage_settings_create_b2_client_config_without_exposing_credentials():
     settings = StorageSettings(
+        _env_file=None,
         b2_endpoint_url="https://s3.us-west-004.backblazeb2.com",
         b2_bucket_name="private-bucket",
         b2_access_key_id="test-key",

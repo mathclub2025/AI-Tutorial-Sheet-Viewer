@@ -13,6 +13,7 @@ from app.data_service.api import (
 from app.data_service.service import DataService
 from app.data_service.settings import DataServiceSettings
 from app.persistence.database import create_database_engine, create_session_factory
+from app.storage.b2 import B2Storage
 
 
 def create_data_app(
@@ -48,7 +49,12 @@ def create_data_app(
     )
     app.state.settings = config
     app.state.session_factory = factory
-    app.state.data_service = DataService()
+    storage = None
+    try:
+        storage = B2Storage(config.storage_settings().to_b2_settings())
+    except ValueError:
+        pass
+    app.state.data_service = DataService(storage)
     app.include_router(router)
     app.add_api_route(
         "/health/ready",

@@ -34,6 +34,7 @@ from app.persistence.models import (
     Subject,
     Topic,
 )
+from app.storage.b2 import B2Storage, StorageError
 
 
 def _canonical_json(payload: dict) -> str:
@@ -58,6 +59,99 @@ def _normalized_datetime(value: datetime) -> datetime:
 
 
 class DataService:
+    def __init__(self, storage: B2Storage | None = None):
+        self.storage = storage
+
+    def _require_storage(self) -> B2Storage:
+        if self.storage is None:
+            raise ServiceError("STORAGE_UNAVAILABLE", "B2 storage is not configured", 503)
+        return self.storage
+
+    def authorize_upload(self, session: Session, payload):
+        storage = self._require_storage()
+        if session.scalar(select(Document).where(Document.external_id == payload.external_id)):
+            raise ServiceError("DOCUMENT_EXISTS", "Document external ID already exists", 409)
+        try:
+            authorization = storage.authorize_upload(
+                payload.original_filename, payload.mime_type, payload.file_size_bytes
+            )
+        except ValueError as exc:
+            raise ServiceError("UPLOAD_NOT_AUTHORIZED", str(exc), 400) from exc
+        except StorageError as exc:
+            raise ServiceError("STORAGE_UNAVAILABLE", str(exc), 503) from exc
+        document = Document(
+            external_id=payload.external_id,
+            title=payload.title,
+            document_type=payload.document_type,
+            source_type=payload.source_type.value if payload.source_type else None,
+            original_filename=payload.original_filename,
+            object_key=authorization.object_key,
+            bucket_name=storage.settings.bucket_name,
+            mime_type=payload.mime_type,
+            file_size_bytes=payload.file_size_bytes,
+            publication_year=payload.publication_year,
+            processing_status="pending",
+            indexing_status="pending",
+            visibility="private",
+        )
+        session.add(document)
+        session.flush()
+        return authorization, document
+
+    def confirm_upload(self, session: Session, payload):
+        storage = self._require_storage()
+        document = session.scalar(
+            select(Document).where(Document.external_id == payload.document_id)
+        )
+        if document is None:
+            raise ServiceError("DOCUMENT_NOT_FOUND", "Document was not found", 404)
+        if document.current_version != payload.document_version:
+            raise ServiceError("DOCUMENT_VERSION_CONFLICT", "Document version does not match", 409)
+        try:
+            verified = storage.confirm_upload(
+                document.object_key,
+                expected_size_bytes=document.file_size_bytes,
+                expected_content_type=document.mime_type,
+                expected_sha256=payload.sha256,
+            )
+        except ValueError as exc:
+            raise ServiceError("UPLOAD_NOT_CONFIRMED", str(exc), 400) from exc
+        except StorageError as exc:
+            raise ServiceError("UPLOAD_NOT_CONFIRMED", str(exc), 422) from exc
+        document.sha256 = verified["sha256"]
+        session.flush()
+        return document
+
+    def get_download_url(self, session: Session, document_id: str):
+        storage = self._require_storage()
+        document = session.scalar(select(Document).where(Document.external_id == document_id))
+        if document is None:
+            raise ServiceError("DOCUMENT_NOT_FOUND", "Document was not found", 404)
+        try:
+            if document.visibility == "public":
+                url = storage.delivery_url(document.object_key, is_public=True)
+                expires = None
+            else:
+                url = storage.download_url(document.object_key)
+                expires = storage.settings.signed_url_expiry_seconds
+        except ValueError as exc:
+            raise ServiceError("DOWNLOAD_UNAVAILABLE", str(exc), 503) from exc
+        except StorageError as exc:
+            raise ServiceError("DOWNLOAD_UNAVAILABLE", str(exc), 503) from exc
+        return document, url, expires
+
+    def delete_document(self, session: Session, document_id: str):
+        storage = self._require_storage()
+        document = session.scalar(select(Document).where(Document.external_id == document_id))
+        if document is None:
+            raise ServiceError("DOCUMENT_NOT_FOUND", "Document was not found", 404)
+        try:
+            storage.delete_object(document.object_key)
+        except StorageError as exc:
+            raise ServiceError("DOCUMENT_DELETE_FAILED", str(exc), 503) from exc
+        session.delete(document)
+        return document.external_id
+
     def record_query_event(self, session: Session, event: QueryEvent) -> None:
         _lock_idempotency_key(session, f"query-event:{event.event_id}")
         existing = session.get(QueryEventRecord, event.event_id)
