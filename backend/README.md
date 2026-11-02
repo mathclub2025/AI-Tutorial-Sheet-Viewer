@@ -78,7 +78,25 @@ The separate data-service app implements Person 1's documented internal data con
 .\.venv\Scripts\python.exe -m uvicorn app.data_service.main:app --host 127.0.0.1 --port 8001 --no-access-log
 ```
 
-Point Person 1's `PERSON2_BASE_URL` at `http://127.0.0.1:8001`. The endpoints are private and require `X-Internal-Token`; do not expose this service directly to browsers. The initial implementation supports search/detail/similar/catalog, query-event persistence, and transactional extraction-result intake. Search is lexical pending the AI team's embedding model/dimension decision. Upload-initiation routes, authenticated reviewer/admin workflows, and durable asynchronous embedding jobs are not included yet.
+Point Person 1's `PERSON2_BASE_URL` at `http://127.0.0.1:8001`. The endpoints are private and require `X-Internal-Token`; do not expose this service directly to browsers. The initial implementation supports search/detail/similar/catalog, query-event persistence, and transactional extraction-result intake. Search is lexical pending the AI team's embedding model/dimension decision. Authenticated reviewer/admin workflows and durable asynchronous embedding jobs are not included yet.
+
+The private data service also provides the storage lifecycle endpoints
+`POST /internal/v1/documents/uploads`,
+`POST /internal/v1/documents/{id}/uploads/confirm`,
+`GET /internal/v1/documents/{id}/download`,
+`GET /internal/v1/documents/{id}/content`, and
+`DELETE /internal/v1/documents/{id}`. They require `X-Internal-Token`, use the
+configured private B2 bucket, verify object metadata and SHA-256 on
+confirmation, and must be placed behind an authenticated uploader/admin
+gateway before exposing them to users. Confirmation leaves processing and
+indexing pending until the AI dispatch and durable indexing workflows are
+connected.
+
+The `download` route returns a URL. For a public document, `content` instead
+fetches that configured delivery-Worker URL on the server and streams the file
+back to the authenticated caller, so the caller does not need to contact the
+Worker directly. Private documents continue to use signed B2 URLs through the
+`download` route and are rejected by `content`.
 
 Run the contract tests with:
 

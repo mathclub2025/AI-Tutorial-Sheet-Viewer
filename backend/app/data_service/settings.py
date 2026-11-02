@@ -2,6 +2,7 @@ from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.persistence.settings import PersistenceSettings
+from app.storage.settings import StorageSettings
 
 
 class DataServiceSettings(BaseSettings):
@@ -14,3 +15,6 @@ class DataServiceSettings(BaseSettings):
         if configured is None:
             raise ValueError("DATABASE_URL must be configured for the data service")
         return configured.get_secret_value()
+
+    def storage_settings(self) -> StorageSettings:
+        return StorageSettings()
