@@ -1,0 +1,9 @@
+[
+ {"id":"PS-T1-01","source":"tutorial","year":null,"question_image":"images/q1.png","solution_image":"images/s1.png","text":"Find the mean, median and mode of the following frequency distribution."},
+ {"id":"PS-T1-02","source":"pyq","year":2023,"question_image":"images/q2.png","solution_image":"images/s2.png","text":"Calculate the variance and standard deviation of the given data."},
+ {"id":"PS-T2-03","source":"pyq","year":2022,"question_image":"images/q3.png","solution_image":"images/s3.png","text":"A factory has three machines. Using Bayes theorem find the probability that a defective item came from machine B."},
+ {"id":"PS-T3-04","source":"tutorial","year":null,"question_image":"images/q4.png","solution_image":"images/s4.png","text":"A random variable follows a Poisson distribution with mean 3. Find P(X>=2)."},
+ {"id":"PS-T3-05","source":"pyq","year":2024,"question_image":"images/q5.png","solution_image":"images/s5.png","text":"Fit a line of regression of y on x and find the Karl Pearson correlation coefficient."},
+ {"id":"PS-T3-06","source":"pyq","year":2024,"question_image":"images/q6.png","solution_image":"images/s6.png","text":"Test the null hypothesis using chi square test at 5 percent level of significance."},
+ {"id":"PS-T3-07","source":"pyq","year":2021,"question_image":"images/q7.png","solution_image":"images/s7.png","text":"The mode and arithmetic mean of a series are 24 and 28. Find the median using empirical relation."}
+]

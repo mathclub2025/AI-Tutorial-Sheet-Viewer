@@ -1,0 +1,334 @@
+{
+  "subjects": {
+    "probability_statistics": {
+      "name": "Probability and Statistics",
+      "aliases": [
+        "probability",
+        "statistics",
+        "prob and stats",
+        "ps",
+        "stats"
+      ],
+      "modules": {
+        "M1": {
+          "name": "Descriptive Statistics",
+          "topics": {
+            "central_tendency": {
+              "name": "Mean, Median, Mode",
+              "keywords": [
+                "mean",
+                "median",
+                "mode",
+                "average",
+                "central tendency",
+                "arithmetic mean",
+                "weighted mean",
+                "geometric mean",
+                "harmonic mean",
+                "frequency distribution"
+              ],
+              "symbols": [
+                "sym_xbar"
+              ]
+            },
+            "dispersion": {
+              "name": "Variance and Standard Deviation",
+              "keywords": [
+                "variance",
+                "standard deviation",
+                "dispersion",
+                "range",
+                "coefficient of variation",
+                "quartile deviation",
+                "spread"
+              ],
+              "symbols": [
+                "sym_sigma",
+                "sym_sum",
+                "sym_xbar",
+                "sym_var"
+              ]
+            },
+            "moments_skew_kurt": {
+              "name": "Moments, Skewness and Kurtosis",
+              "keywords": [
+                "moment",
+                "skewness",
+                "kurtosis",
+                "karl pearson",
+                "central moment"
+              ],
+              "symbols": [
+                "sym_moment_k"
+              ]
+            },
+            "correlation_regression": {
+              "name": "Correlation and Regression",
+              "keywords": [
+                "correlation",
+                "regression",
+                "least squares",
+                "line of regression",
+                "karl pearson coefficient",
+                "spearman",
+                "rank correlation",
+                "curve fitting"
+              ],
+              "symbols": [
+                "sym_rho",
+                "sym_cov",
+                "sym_xbar"
+              ]
+            }
+          }
+        },
+        "M2": {
+          "name": "Probability",
+          "topics": {
+            "basic_probability": {
+              "name": "Basic Probability and Counting",
+              "keywords": [
+                "probability",
+                "sample space",
+                "event",
+                "dice",
+                "coin",
+                "cards",
+                "permutation",
+                "combination",
+                "addition theorem",
+                "mutually exclusive"
+              ],
+              "symbols": [
+                "sym_comb",
+                "sym_prob_fn",
+                "sym_union"
+              ]
+            },
+            "conditional_bayes": {
+              "name": "Conditional Probability and Bayes Theorem",
+              "keywords": [
+                "conditional probability",
+                "bayes",
+                "bayes theorem",
+                "total probability",
+                "independent events",
+                "posterior",
+                "prior"
+              ],
+              "symbols": [
+                "sym_condprob"
+              ]
+            },
+            "random_variables": {
+              "name": "Random Variables and Expectation",
+              "keywords": [
+                "random variable",
+                "pmf",
+                "pdf",
+                "cdf",
+                "expectation",
+                "expected value",
+                "probability mass function",
+                "density function",
+                "distribution function"
+              ],
+              "symbols": [
+                "sym_expect",
+                "sym_var",
+                "sym_fx"
+              ]
+            }
+          }
+        },
+        "M3": {
+          "name": "Probability Distributions",
+          "topics": {
+            "binomial_poisson": {
+              "name": "Binomial and Poisson Distribution",
+              "keywords": [
+                "binomial",
+                "poisson",
+                "bernoulli",
+                "trials",
+                "success",
+                "geometric distribution"
+              ],
+              "symbols": [
+                "sym_poisson_form",
+                "sym_binomial_form",
+                "sym_comb"
+              ]
+            },
+            "normal_distribution": {
+              "name": "Normal Distribution",
+              "keywords": [
+                "normal distribution",
+                "gaussian",
+                "z score",
+                "standard normal",
+                "normal curve",
+                "area under curve"
+              ],
+              "symbols": [
+                "sym_gauss",
+                "sym_normal"
+              ]
+            },
+            "sampling_hypothesis": {
+              "name": "Sampling and Hypothesis Testing",
+              "keywords": [
+                "hypothesis",
+                "null hypothesis",
+                "t test",
+                "chi square",
+                "z test",
+                "significance",
+                "confidence interval",
+                "sampling",
+                "type i error",
+                "f test",
+                "level of significance"
+              ],
+              "symbols": [
+                "sym_chi",
+                "sym_hypothesis",
+                "sym_xbar"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "linear_algebra": {
+      "name": "Linear Algebra",
+      "aliases": [
+        "matrices",
+        "matrix",
+        "la"
+      ],
+      "modules": {
+        "M1": {
+          "name": "Matrices",
+          "topics": {
+            "rank_inverse": {
+              "name": "Rank and Inverse of Matrix",
+              "keywords": [
+                "rank",
+                "inverse",
+                "echelon",
+                "gauss jordan",
+                "determinant",
+                "adjoint",
+                "normal form"
+              ],
+              "symbols": [
+                "sym_inverse",
+                "sym_matrix",
+                "sym_det"
+              ]
+            },
+            "linear_systems": {
+              "name": "System of Linear Equations",
+              "keywords": [
+                "system of equations",
+                "consistent",
+                "inconsistent",
+                "homogeneous",
+                "gauss elimination",
+                "augmented matrix"
+              ],
+              "symbols": [
+                "sym_matrix"
+              ]
+            },
+            "eigen": {
+              "name": "Eigenvalues and Eigenvectors",
+              "keywords": [
+                "eigenvalue",
+                "eigenvector",
+                "characteristic equation",
+                "cayley hamilton",
+                "diagonalization",
+                "diagonalisation"
+              ],
+              "symbols": [
+                "sym_charpoly",
+                "sym_lambda",
+                "sym_matrix"
+              ]
+            }
+          }
+        }
+      }
+    },
+    "calculus": {
+      "name": "Calculus",
+      "aliases": [
+        "differentiation",
+        "integration",
+        "calc"
+      ],
+      "modules": {
+        "M1": {
+          "name": "Differential Calculus",
+          "topics": {
+            "partial_derivatives": {
+              "name": "Partial Derivatives",
+              "keywords": [
+                "partial derivative",
+                "euler theorem",
+                "homogeneous function",
+                "jacobian",
+                "chain rule",
+                "total derivative"
+              ],
+              "symbols": [
+                "sym_partial",
+                "sym_fxy",
+                "sym_nabla"
+              ]
+            },
+            "maxima_minima": {
+              "name": "Maxima and Minima",
+              "keywords": [
+                "maxima",
+                "minima",
+                "lagrange multiplier",
+                "stationary point",
+                "saddle point",
+                "extreme value"
+              ],
+              "symbols": [
+                "sym_fxy",
+                "sym_lambda"
+              ]
+            }
+          }
+        },
+        "M2": {
+          "name": "Integral Calculus",
+          "topics": {
+            "multiple_integrals": {
+              "name": "Double and Triple Integrals",
+              "keywords": [
+                "double integral",
+                "triple integral",
+                "change of order",
+                "polar coordinates",
+                "area",
+                "volume"
+              ],
+              "symbols": [
+                "sym_dint",
+                "sym_tint",
+                "sym_dxdy",
+                "sym_int"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}
