@@ -1,0 +1,10 @@
+[
+ {"id":"EQ-1","source":"pyq","year":2023,"question_image":"images/e1.png","solution_image":null,"text":"Evaluate $\\iint_R xy\\,dx\\,dy$ over the region R."},
+ {"id":"EQ-2","source":"pyq","year":2023,"question_image":"images/e2.png","solution_image":null,"text":"If $u = x^2 y + y^2 z$, show that $\\frac{\\partial^2 u}{\\partial x \\partial y} = \\frac{\\partial^2 u}{\\partial y \\partial x}$."},
+ {"id":"EQ-3","source":"tutorial","year":null,"question_image":"images/e3.png","solution_image":null,"text":"Solve $|A - \\lambda I| = 0$ for $A = \\begin{bmatrix}2&1\\\\1&2\\end{bmatrix}$."},
+ {"id":"EQ-4","source":"pyq","year":2022,"question_image":"images/e4.png","solution_image":null,"text":"Given $P(A \\mid B) = 0.4$ and $P(B) = 0.5$, compute $P(A \\cap B)$."},
+ {"id":"EQ-5","source":"pyq","year":2022,"question_image":"images/e5.png","solution_image":null,"text":"$P(X=k) = \\frac{e^{-\\lambda}\\lambda^k}{k!}$ with $\\lambda = 2$. Find $P(X \\ge 3)$."},
+ {"id":"EQ-6","source":"tutorial","year":null,"question_image":"images/e6.png","solution_image":null,"text":"Compute $\\sigma^2 = \\frac{\\sum (x_i - \\bar{x})^2}{n}$ for the data 4, 8, 6, 5, 7."},
+ {"id":"EQ-7","source":"pyq","year":2021,"question_image":"images/e7.png","solution_image":null,"text":"Evaluate $\\int_0^1 \\int_0^x (x+y)\\,dy\\,dx$."},
+ {"id":"EQ-8","source":"pyq","year":2021,"question_image":"images/e8.png","solution_image":null,"text":null}
+]
