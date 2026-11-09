@@ -6,10 +6,10 @@
 **/.ruff_cache/
 **/.test-*/
 **/*.egg-info/
-**/.env
 **/.env.local
 **/lint-report.json
 **/*.tsbuildinfo
 **/migration-check.sql
 **/.tmp/
 *.zip
+config.bat
