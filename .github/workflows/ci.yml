@@ -1,0 +1,32 @@
+name: Integrated checks
+on: [push, pull_request]
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -c constraints.txt -e '.[test]'
+      - run: python -m pytest
+      - run: ruff check app tests scripts
+      - run: python scripts/export_openapi.py && python scripts/export_contracts.py
+      - run: git diff --exit-code -- docs/openapi.json docs/openapi-data-service.json docs/contracts
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts
+      - run: npm run lint
+      - run: npx tsc --noEmit
+      - run: npm run build

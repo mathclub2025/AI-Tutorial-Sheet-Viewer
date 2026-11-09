@@ -1,0 +1,27 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "model": {
+      "title": "Model",
+      "type": "string"
+    },
+    "vectors": {
+      "items": {
+        "items": {
+          "type": "number"
+        },
+        "type": "array"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Vectors",
+      "type": "array"
+    }
+  },
+  "required": [
+    "model",
+    "vectors"
+  ],
+  "title": "EmbeddingResponse",
+  "type": "object"
+}

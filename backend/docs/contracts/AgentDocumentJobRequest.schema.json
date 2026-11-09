@@ -1,0 +1,52 @@
+{
+  "$defs": {
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "document_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Document Id",
+      "type": "string"
+    },
+    "document_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Document Version",
+      "type": "string"
+    },
+    "source_type": {
+      "$ref": "#/$defs/SourceType"
+    },
+    "client_job_key": {
+      "maxLength": 128,
+      "minLength": 8,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Client Job Key",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "document_id",
+    "document_version",
+    "source_type",
+    "client_job_key",
+    "request_id"
+  ],
+  "title": "AgentDocumentJobRequest",
+  "type": "object"
+}

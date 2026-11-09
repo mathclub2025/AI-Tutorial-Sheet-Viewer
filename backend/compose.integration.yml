@@ -1,0 +1,24 @@
+# LOCAL MOCK SERVICES ONLY. They do not persist data or run AI models.
+x-common: &common
+  build: .
+  environment:
+    INTERNAL_SERVICE_TOKEN: integration-demo-token
+services:
+  person2:
+    <<: *common
+    command: ["uvicorn", "scripts.mock_services:p2", "--host", "0.0.0.0", "--port", "8001", "--no-access-log"]
+  ai:
+    <<: *common
+    command: ["uvicorn", "scripts.mock_services:ai", "--host", "0.0.0.0", "--port", "8002", "--no-access-log"]
+  api:
+    build: .
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on: [person2, ai]
+    environment:
+      APP_ENV: development
+      BACKEND_MODE: http
+      API_KEY: local-dev-secret
+      INTERNAL_SERVICE_TOKEN: integration-demo-token
+      PERSON2_BASE_URL: http://person2:8001
+      AI_BASE_URL: http://ai:8002
+      CAPTURE_REQUIRED: "true"
