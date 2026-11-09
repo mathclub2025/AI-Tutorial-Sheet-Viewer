@@ -4,10 +4,18 @@ import os
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def stream_output(label, stream):
+    for line in iter(stream.readline, ""):
+        print(f"[{label}] {line.rstrip()}", flush=True)
+    stream.close()
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -22,33 +30,64 @@ def main():
     env = dict(os.environ)
     if args.preview:
         env.update(BACKEND_URL="http://127.0.0.1:8010", BACKEND_API_KEY="student-gateway-key", WEBSITE_ORIGIN="http://localhost:3100")
-        commands = [([sys.executable, "scripts/run_local_preview.py"], ROOT / "backend")]
+        commands = [("preview backend", [sys.executable, "scripts/run_local_preview.py"], ROOT / "backend")]
         print("LOCAL TEST PREVIEW: fake extraction, fake storage, temporary data.", flush=True)
     else:
         commands = [
-            ([sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000", "--no-access-log"], ROOT / "backend"),
-            ([sys.executable, "-m", "uvicorn", "app.data_service.main:app", "--host", "127.0.0.1", "--port", "8001", "--no-access-log"], ROOT / "backend"),
-            ([sys.executable, "-m", "app.data_service.worker"], ROOT / "backend"),
+            ("api", [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000", "--no-access-log"], ROOT / "backend"),
+            ("data service", [sys.executable, "-m", "uvicorn", "app.data_service.main:app", "--host", "127.0.0.1", "--port", "8001", "--no-access-log"], ROOT / "backend"),
+            ("worker", [sys.executable, "-m", "app.data_service.worker"], ROOT / "backend"),
         ]
-    commands.append(([node, str(ROOT / "frontend/node_modules/next/dist/bin/next"), "start", "-H", "127.0.0.1", "-p", str(args.port)], ROOT / "frontend"))
+    commands.append(("website", [node, str(ROOT / "frontend/node_modules/next/dist/bin/next"), "start", "-H", "127.0.0.1", "-p", str(args.port)], ROOT / "frontend"))
     processes = []
     try:
-        for command, cwd in commands:
-            processes.append(subprocess.Popen(command, cwd=cwd, env=env, creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0))
+        for label, command, cwd in commands:
+            try:
+                process = subprocess.Popen(
+                    command,
+                    cwd=cwd,
+                    env=env,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1,
+                    creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0,
+                )
+            except OSError as exc:
+                print(
+                    f"[{label}] failed to start in {cwd}: {exc}",
+                    file=sys.stderr,
+                    flush=True,
+                )
+                raise SystemExit(1) from exc
+            processes.append((label, process))
+            threading.Thread(
+                target=stream_output,
+                args=(label, process.stdout),
+                daemon=True,
+            ).start()
         print(f"Starting website at http://localhost:{args.port}. Ctrl+C stops this stack.", flush=True)
-        while all(p.poll() is None for p in processes):
+        while all(process.poll() is None for _, process in processes):
             time.sleep(1)
-        raise SystemExit("A service stopped. Check its output above; the other services will stop too.")
+        for label, process in processes:
+            return_code = process.poll()
+            if return_code is not None:
+                if return_code == 0:
+                    print(f"[{label}] stopped unexpectedly (exit code 0).", flush=True)
+                else:
+                    print(f"[{label}] stopped with exit code {return_code}.", file=sys.stderr, flush=True)
+        raise SystemExit(1)
     except KeyboardInterrupt:
-        pass
+        print("Stopping website stack...", flush=True)
     finally:
-        for process in reversed(processes):
+        for _, process in reversed(processes):
             if process.poll() is None:
                 process.terminate()
-        for process in processes:
+        for label, process in processes:
             try:
                 process.wait(timeout=10)
             except subprocess.TimeoutExpired:
+                print(f"[{label}] did not stop gracefully; terminating it.", file=sys.stderr, flush=True)
                 process.kill()
 
 if __name__ == "__main__":

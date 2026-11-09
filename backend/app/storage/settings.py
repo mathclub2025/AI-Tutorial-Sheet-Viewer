@@ -7,13 +7,15 @@ from app.storage.b2 import B2Settings
 
 
 class StorageSettings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore", case_sensitive=False)
+    model_config = SettingsConfigDict(
+        env_file=".env", extra="ignore", case_sensitive=False
+    )
 
     b2_endpoint_url: str | None = None
     b2_bucket_name: str | None = None
     b2_access_key_id: SecretStr | None = Field(None, repr=False)
     b2_application_key: SecretStr | None = Field(None, repr=False)
-    b2_region: str = "us-west-004"
+    b2_region: str = "eu-central-003"
     cloudflare_delivery_base_url: str | None = None
     b2_signed_url_expiry_seconds: int = Field(default=900, ge=1, le=604800)
     max_upload_bytes: int = Field(default=52_428_800, ge=1)
@@ -42,7 +44,9 @@ class StorageSettings(BaseSettings):
                 or endpoint.query
                 or endpoint.fragment
             ):
-                raise ValueError("B2_ENDPOINT_URL must be an HTTPS origin without credentials")
+                raise ValueError(
+                    "B2_ENDPOINT_URL must be an HTTPS origin without credentials"
+                )
         if self.cloudflare_delivery_base_url:
             delivery = urlsplit(self.cloudflare_delivery_base_url)
             if (

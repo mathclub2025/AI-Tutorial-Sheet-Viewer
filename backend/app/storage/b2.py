@@ -27,7 +27,7 @@ class B2Settings:
     bucket_name: str
     access_key_id: str = field(repr=False)
     secret_access_key: str = field(repr=False)
-    region: str = "us-west-004"
+    region: str = "eu-central-003"
     delivery_base_url: str | None = None
     signed_url_expiry_seconds: int = 900
     max_upload_bytes: int = 50 * 1024 * 1024
@@ -42,7 +42,9 @@ class B2Settings:
             self.secret_access_key,
         )
         if any(not value.strip() for value in required):
-            raise ValueError("B2 endpoint, bucket, access key, and application key are required")
+            raise ValueError(
+                "B2 endpoint, bucket, access key, and application key are required"
+            )
         endpoint = urlsplit(self.endpoint_url)
         if (
             endpoint.scheme != "https"
@@ -54,7 +56,10 @@ class B2Settings:
             or endpoint.fragment
         ):
             raise ValueError("B2 endpoint must be an HTTPS origin without credentials")
-        if self.signed_url_expiry_seconds < 1 or self.signed_url_expiry_seconds > 604800:
+        if (
+            self.signed_url_expiry_seconds < 1
+            or self.signed_url_expiry_seconds > 604800
+        ):
             raise ValueError("Signed URL expiry must be between 1 and 604800 seconds")
         if self.max_upload_bytes < 1:
             raise ValueError("Maximum upload size must be positive")
@@ -70,7 +75,9 @@ class B2Settings:
                 or delivery.query
                 or delivery.fragment
             ):
-                raise ValueError("Delivery URL must be HTTP(S) without credentials or query")
+                raise ValueError(
+                    "Delivery URL must be HTTP(S) without credentials or query"
+                )
 
 
 @dataclass(frozen=True)
@@ -100,7 +107,9 @@ class B2Storage:
         )
 
     @staticmethod
-    def _validated_file(filename: str, content_type: str, size_bytes: int, max_size: int) -> str:
+    def _validated_file(
+        filename: str, content_type: str, size_bytes: int, max_size: int
+    ) -> str:
         suffix = "." + filename.rsplit(".", 1)[-1].lower() if "." in filename else ""
         expected_type = ALLOWED_CONTENT_TYPES.get(suffix)
         if expected_type is None or expected_type != content_type.lower():
@@ -121,7 +130,9 @@ class B2Storage:
     def authorize_upload(
         self, filename: str, content_type: str, size_bytes: int
     ) -> UploadAuthorization:
-        self._validated_file(filename, content_type, size_bytes, self.settings.max_upload_bytes)
+        self._validated_file(
+            filename, content_type, size_bytes, self.settings.max_upload_bytes
+        )
         key = self.new_object_key(
             filename, content_type, size_bytes, self.settings.max_upload_bytes
         )
@@ -143,7 +154,10 @@ class B2Storage:
         return UploadAuthorization(
             object_key=key,
             url=url,
-            required_headers={"Content-Type": content_type, "Content-Length": str(size_bytes)},
+            required_headers={
+                "Content-Type": content_type,
+                "Content-Length": str(size_bytes),
+            },
             expires_in_seconds=self.settings.signed_url_expiry_seconds,
             max_size_bytes=size_bytes,
         )
@@ -176,20 +190,28 @@ class B2Storage:
             self.settings.max_upload_bytes,
         )
         try:
-            metadata = self.client.head_object(Bucket=self.settings.bucket_name, Key=object_key)
+            metadata = self.client.head_object(
+                Bucket=self.settings.bucket_name, Key=object_key
+            )
         except (BotoCoreError, ClientError) as exc:
             raise StorageError(
                 "Uploaded object is missing or its metadata could not be read"
             ) from exc
         if metadata.get("ContentLength") != expected_size_bytes:
-            raise StorageError("Uploaded object size does not match the authorized size")
+            raise StorageError(
+                "Uploaded object size does not match the authorized size"
+            )
         if metadata.get("ContentType", "").lower() != expected_content_type.lower():
-            raise StorageError("Uploaded object content type does not match the authorized type")
+            raise StorageError(
+                "Uploaded object content type does not match the authorized type"
+            )
         body = None
         digest = hashlib.sha256()
         streamed_size = 0
         try:
-            body = self.client.get_object(Bucket=self.settings.bucket_name, Key=object_key)["Body"]
+            body = self.client.get_object(
+                Bucket=self.settings.bucket_name, Key=object_key
+            )["Body"]
             for chunk in body.iter_chunks(chunk_size=1024 * 1024):
                 streamed_size += len(chunk)
                 if streamed_size > expected_size_bytes:
@@ -228,20 +250,29 @@ class B2Storage:
             raise StorageError("Could not check object existence") from exc
         return True
 
-    def upload_url(self, object_key: str, content_type: str, size_bytes: int, expires: int) -> str:
+    def upload_url(
+        self, object_key: str, content_type: str, size_bytes: int, expires: int
+    ) -> str:
         """Renew only an existing intent, without extending its database expiry."""
         self._validate_object_key(object_key)
         try:
             return self.client.generate_presigned_url(
                 "put_object",
-                Params={"Bucket": self.settings.bucket_name, "Key": object_key,
-                        "ContentType": content_type, "ContentLength": size_bytes},
-                ExpiresIn=expires, HttpMethod="PUT",
+                Params={
+                    "Bucket": self.settings.bucket_name,
+                    "Key": object_key,
+                    "ContentType": content_type,
+                    "ContentLength": size_bytes,
+                },
+                ExpiresIn=expires,
+                HttpMethod="PUT",
             )
         except (BotoCoreError, ClientError) as exc:
             raise StorageError("Could not authorize upload") from exc
 
-    def seal_upload(self, source_key: str, sealed_key: str, **expected) -> dict[str, Any]:
+    def seal_upload(
+        self, source_key: str, sealed_key: str, **expected
+    ) -> dict[str, Any]:
         """Copy verified bytes to a key which has never had a client PUT authorization.
 
         Bind the copy to the verified ETag, then verify the destination too. This also
@@ -250,18 +281,24 @@ class B2Storage:
         self._validate_object_key(sealed_key)
         verified = self.confirm_upload(source_key, **expected)
         if not verified["etag"]:
-            raise StorageError("Object storage must return an ETag for upload confirmation")
+            raise StorageError(
+                "Object storage must return an ETag for upload confirmation"
+            )
         try:
             self.client.copy_object(
-                Bucket=self.settings.bucket_name, Key=sealed_key,
+                Bucket=self.settings.bucket_name,
+                Key=sealed_key,
                 CopySource={"Bucket": self.settings.bucket_name, "Key": source_key},
                 CopySourceIfMatch='"' + verified["etag"] + '"',
                 MetadataDirective="COPY",
             )
         except (BotoCoreError, ClientError) as exc:
-            raise StorageError("Could not seal the verified upload; retry confirmation") from exc
+            raise StorageError(
+                "Could not seal the verified upload; retry confirmation"
+            ) from exc
         return self.confirm_upload(
-            sealed_key, expected_size_bytes=expected["expected_size_bytes"],
+            sealed_key,
+            expected_size_bytes=expected["expected_size_bytes"],
             expected_content_type=expected["expected_content_type"],
             expected_sha256=verified["sha256"],
         )

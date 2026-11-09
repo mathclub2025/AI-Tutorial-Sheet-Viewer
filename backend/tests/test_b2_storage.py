@@ -45,7 +45,7 @@ class FakeB2Client:
 
 def make_storage(client=None):
     settings = B2Settings(
-        endpoint_url="https://s3.us-west-004.backblazeb2.com",
+        endpoint_url="https://s3.eu-central-003.backblazeb2.com",
         bucket_name="private-bucket",
         access_key_id="test-key",
         secret_access_key="test-secret",
@@ -58,7 +58,11 @@ def test_b2_configuration_requires_all_credentials():
         B2Settings("", "bucket", "key", "secret")
     with pytest.raises(ValueError, match="expiry"):
         B2Settings(
-            "https://s3.example", "bucket", "key", "secret", signed_url_expiry_seconds=700000
+            "https://s3.example",
+            "bucket",
+            "key",
+            "secret",
+            signed_url_expiry_seconds=700000,
         )
     with pytest.raises(ValueError, match="HTTPS origin"):
         B2Settings("http://s3.example", "bucket", "key", "secret")
@@ -75,7 +79,7 @@ def test_b2_configuration_requires_all_credentials():
 
 def test_storage_settings_create_b2_client_config_without_exposing_credentials():
     settings = StorageSettings(
-        b2_endpoint_url="https://s3.us-west-004.backblazeb2.com",
+        b2_endpoint_url="https://s3.eu-central-003.backblazeb2.com",
         b2_bucket_name="private-bucket",
         b2_access_key_id="test-key",
         b2_application_key="test-secret",
@@ -111,13 +115,17 @@ def test_upload_authorization_is_scoped_to_generated_object_and_size():
 
 def test_boto_presigned_url_binds_upload_size_and_mime_type():
     settings = B2Settings(
-        endpoint_url="https://s3.us-west-004.backblazeb2.com",
+        endpoint_url="https://s3.eu-central-003.backblazeb2.com",
         bucket_name="private-bucket",
         access_key_id="test-key",
         secret_access_key="test-secret",
     )
-    authorization = B2Storage(settings).authorize_upload("paper.pdf", "application/pdf", 128)
-    signed_headers = parse_qs(urlsplit(authorization.url).query)["X-Amz-SignedHeaders"][0]
+    authorization = B2Storage(settings).authorize_upload(
+        "paper.pdf", "application/pdf", 128
+    )
+    signed_headers = parse_qs(urlsplit(authorization.url).query)["X-Amz-SignedHeaders"][
+        0
+    ]
     assert "content-length" in signed_headers.split(";")
     assert "content-type" in signed_headers.split(";")
 
