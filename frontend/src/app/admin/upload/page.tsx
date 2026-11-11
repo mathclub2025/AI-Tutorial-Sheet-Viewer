@@ -5,6 +5,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { SheetMetaForm } from "@/components/admin/SheetMetaForm";
 import { UploadDropzone } from "@/components/admin/UploadDropzone";
+import { messageOf } from "@/lib/api";
+import { useStaff } from "@/components/admin/AdminAuthGuard";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { uploadSheet } from "@/lib/adminApi";
 import type { UploadMetaFormValues } from "@/lib/schemas";
@@ -16,6 +18,7 @@ import {
 } from "lucide-react";
 
 export default function UploadPage() {
+  const staff = useStaff();
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [isUploading, setIsUploading] = React.useState<boolean>(false);
   const [uploadError, setUploadError] = React.useState<string | null>(null);
@@ -52,7 +55,7 @@ export default function UploadPage() {
       toast.success("Sheet uploaded successfully.");
     } catch (err) {
       console.error("Upload failed:", err);
-      const errorMsg = "An error occurred while uploading. Please check the file and try again.";
+      const errorMsg = messageOf(err);
       setUploadError(errorMsg);
       toast.error(errorMsg);
     } finally {
@@ -60,6 +63,7 @@ export default function UploadPage() {
     }
   };
 
+  if (staff?.role === "reviewer") return <p className="p-6">Your reviewer role can review existing batches. An uploader or admin can upload new sheets.</p>;
   return (
     <AdminAuthGuard>
       <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">

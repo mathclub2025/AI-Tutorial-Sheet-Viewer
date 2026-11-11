@@ -3,6 +3,7 @@
 import * as React from "react";
 import { usePathname } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { AdminHeader } from "@/components/admin/AdminHeader";
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
@@ -20,7 +21,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="relative min-h-screen bg-transparent flex flex-col md:flex-row text-zinc-100 selection:bg-zinc-800 selection:text-zinc-100">
+    <AdminAuthGuard><div className="relative min-h-screen bg-transparent flex flex-col md:flex-row text-zinc-100 selection:bg-zinc-800 selection:text-zinc-100">
       <AdminSidebar />
       <div className="flex-1 md:pl-60 min-w-0 flex flex-col">
         <AdminHeader />
@@ -28,7 +29,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
           {children}
         </div>
       </div>
-    </div>
+    </div></AdminAuthGuard>
   );
 }
 

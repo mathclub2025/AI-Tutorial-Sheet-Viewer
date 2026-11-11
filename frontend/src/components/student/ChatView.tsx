@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight, Folder, FolderMinus, Copy, Check, Ellipsis, Menu, Pencil, Pin, PinOff, RefreshCw, Share2, ThumbsDown, ThumbsUp, Trash2, SearchX } from "lucide-react";
 import { useApp } from "@/lib/studentStore";
 import type { Message } from "@/lib/studentTypes";
+import { refreshQuestion } from "@/lib/studentApi";
+import { messageOf } from "@/lib/api";
 import Composer from "./Composer";
 import QuestionCard from "./QuestionCard";
 import { Chip, IconBtn, Logo, useOutside } from "./ui";
@@ -31,13 +33,14 @@ function AssistantMessage({ m, onRetry }: { m: Message; onRetry: () => void }) {
   const qs = m.result?.questions ?? [];
 
   const copy = async () => {
-    const txt = qs.map((q, i) => `${i + 1}. ${q.text.join(" ")}`).join("\n") || m.text;
     try {
+      const current = await Promise.all(qs.map(q => refreshQuestion(q.id)));
+      const txt = current.map(({question:q}, i) => `${i + 1}. ${q.text.join(" ")}`).join("\n") || m.text;
       await navigator.clipboard.writeText(txt);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
-    } catch {
-      notify("Copy isn't available here");
+    } catch (error) {
+      notify(messageOf(error));
     }
   };
 
@@ -146,11 +149,13 @@ export default function ChatView() {
   const share = async () => {
     if (!active) return;
     try {
-      const lines = active.messages.flatMap((m) => (m.result?.questions ?? []).map((q, i) => `${i + 1}. [${q.source.label}] ${q.text.join(" ")}`));
+      const ids = [...new Set(active.messages.flatMap(m => (m.result?.questions ?? []).map(q => q.id)))];
+      const current = await Promise.all(ids.map(refreshQuestion));
+      const lines = current.map(({question:q}, i) => `${i + 1}. [${q.source.label}] ${q.text.join(" ")}`);
       await navigator.clipboard.writeText([active.title, ...lines].join("\n"));
       notify("Questions copied as text");
-    } catch {
-      notify("Copy isn't available here");
+    } catch (error) {
+      notify(messageOf(error));
     }
   };
 

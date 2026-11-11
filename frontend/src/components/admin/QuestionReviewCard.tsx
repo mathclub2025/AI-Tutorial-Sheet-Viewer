@@ -23,19 +23,32 @@ import {
   Columns2,
   Edit3,
 } from "lucide-react";
+import { messageOf } from "@/lib/api";
+import { useStaff } from "./AdminAuthGuard";
 import { toast } from "sonner";
 
 export interface QuestionReviewCardProps {
   question: Question;
-  onUpdate: (id: string, updates: Partial<Question>) => void;
+  onUpdate: (id: string, updates: Partial<Question>) => Promise<void>;
   defaultSolutionOpen?: boolean;
 }
 
 export function QuestionReviewCard({
   question,
-  onUpdate,
+  onUpdate: saveUpdate,
   defaultSolutionOpen = false,
 }: QuestionReviewCardProps) {
+  const staff = useStaff();
+  const [busy, setBusy] = React.useState(false);
+  const onUpdate = async (id: string, updates: Partial<Question>) => {
+    setBusy(true);
+    try { await saveUpdate(id, updates); } finally { setBusy(false); }
+  };
+  const submitUpdate = async (updates: Partial<Question>, message: string) => {
+    try { await onUpdate(question.id, updates); toast.success(message); }
+    catch (error) { toast.error(messageOf(error)); }
+  };
+
   const [flagNote, setFlagNote] = React.useState<string>(question.flagNote || "");
   const [flagError, setFlagError] = React.useState<string | null>(null);
   const [showFlagInput, setShowFlagInput] = React.useState<boolean>(false);
@@ -57,6 +70,8 @@ export function QuestionReviewCard({
 
   React.useEffect(() => {
     if (question.flagNote !== undefined) {
+    // Initialize browser-only state or reset a dialog draft when its source changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
       setFlagNote(question.flagNote);
     }
   }, [question.flagNote]);
@@ -111,15 +126,15 @@ export function QuestionReviewCard({
       return;
     }
 
-    onUpdate(question.id, { status: "flagged", flagNote: trimmed });
+    void submitUpdate({ status: "flagged", flagNote: trimmed }, "Question flagged for correction");
     setShowFlagInput(false);
     setFlagError(null);
-    toast.error("Question flagged for correction");
+
   };
 
   return (
     <>
-      <Card
+      <fieldset disabled={busy || staff?.role === "uploader"} className="min-w-0"><Card
         className="rounded-xl border border-white/[0.08] bg-[#121215]/90 backdrop-blur-md shadow-2xl shadow-black/60 overflow-hidden transition-all hover:border-white/[0.15]"
       >
         <CardHeader className="p-5 sm:p-6 pb-0 space-y-3">
@@ -230,11 +245,10 @@ export function QuestionReviewCard({
               }}
               className="group relative cursor-zoom-in rounded-xl border border-zinc-300 bg-white p-3.5 flex items-center justify-center overflow-hidden transition-all hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 shadow-xs"
             >
-              <img
-                src={question.questionImageUrl}
+              {question.questionImageUrl ? <img src={question.questionImageUrl}
                 alt={`Question: ${question.subject}`}
                 className="w-auto max-w-full h-auto max-h-64 sm:max-h-80 md:max-h-[380px] object-contain rounded select-none"
-              />
+              /> : <p className="text-zinc-900 whitespace-pre-wrap">{question.text}</p>}
               <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 rounded-md bg-[#0A0A0C]/90 px-2.5 py-1 text-xs font-medium text-white border border-white/[0.12] transition-opacity group-hover:opacity-100 opacity-90 sm:opacity-0 pointer-events-none shadow-xs">
                 <Maximize2 className="h-3 w-3 text-[#E2B86B]" />
                 <span>Full Size</span>
@@ -253,13 +267,15 @@ export function QuestionReviewCard({
                   newTags.some((tag, index) => tag !== currentTags[index]);
 
                 if (isDifferent) {
-                  onUpdate(question.id, { topics: newTags });
-                  toast("Topics updated", { duration: 1500 });
+                  void submitUpdate({ topics: newTags }, "Topics saved; review is required again.");
                 }
               }}
             />
           </div>
 
+          {question.solutionStatus && question.solutionStatus !== "approved" && <Button onClick={() => void submitUpdate({ approveSolution: true }, "Question and solution approved.")}>Approve question and solution</Button>}
+          {!question.questionImageUrl && <p className="whitespace-pre-wrap">{question.text}</p>}
+          {!question.solutionImageUrl && <p className="whitespace-pre-wrap text-sm text-zinc-400">{question.officialSolution || "No solution has been provided yet."}</p>}
           {/* 5. Collapsible Solution Image Preview - SOLID CRISP BG-WHITE */}
           <div className="space-y-2 border-t border-white/[0.08] pt-4">
             <div className="flex items-center justify-between">
@@ -329,11 +345,10 @@ export function QuestionReviewCard({
                   }}
                   className="group relative cursor-zoom-in rounded-xl border border-zinc-300 bg-white p-3.5 flex items-center justify-center overflow-hidden transition-all hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 shadow-xs"
                 >
-                  <img
-                    src={question.solutionImageUrl}
+                  {question.solutionImageUrl ? <img src={question.solutionImageUrl}
                     alt={`Solution: ${question.subject}`}
                     className="w-auto max-w-full h-auto max-h-64 sm:max-h-80 md:max-h-[380px] object-contain rounded select-none"
-                  />
+                  /> : <p className="text-zinc-900 whitespace-pre-wrap">{question.officialSolution || "No solution available"}</p>}
                   <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1.5 rounded-md bg-[#0A0A0C]/90 px-2.5 py-1 text-xs font-medium text-white border border-white/[0.12] transition-opacity group-hover:opacity-100 opacity-90 sm:opacity-0 pointer-events-none shadow-xs">
                     <Maximize2 className="h-3 w-3 text-[#E2B86B]" />
                     <span>Full Size</span>
@@ -349,10 +364,10 @@ export function QuestionReviewCard({
               variant="default"
               className="bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white rounded-lg flex items-center gap-1.5 font-medium cursor-pointer transition-all shadow-xs"
               onClick={() => {
-                onUpdate(question.id, { status: "approved" });
+                void submitUpdate({ status: "approved" }, "Question approved. Solution approval and publication are separate.");
                 setShowFlagInput(false);
                 setFlagError(null);
-                toast.success("Question approved");
+
               }}
             >
               <CheckCircle2 className="h-4 w-4 stroke-[2.2]" />
@@ -445,7 +460,7 @@ export function QuestionReviewCard({
             </div>
           )}
         </CardContent>
-      </Card>
+      </Card></fieldset>
 
 
       {/* Edit Dialog */}

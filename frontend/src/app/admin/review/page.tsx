@@ -4,10 +4,9 @@ import * as React from "react";
 import Link from "next/link";
 import {
   listBatches,
-  getBatchQuestions,
   type BatchListItem,
 } from "@/lib/adminApi";
-import type { Question } from "@/lib/types";
+import { messageOf } from "@/lib/api";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -41,9 +40,7 @@ type StatusFilter = "all" | "pending" | "in_review" | "completed";
 
 export default function ReviewBatchesPage() {
   const [batches, setBatches] = React.useState<BatchListItem[]>([]);
-  const [batchQuestionsMap, setBatchQuestionsMap] = React.useState<
-    Record<string, Question[]>
-  >({});
+  const [loadError, setLoadError] = React.useState("");
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   // Filter states
@@ -54,42 +51,10 @@ export default function ReviewBatchesPage() {
 
   React.useEffect(() => {
     let isMounted = true;
-    setIsLoading(true);
 
     listBatches()
-      .then(async (data) => {
-        if (!isMounted) return;
-        setBatches(data);
-
-        // Fetch question details for each batch to get exact question status records
-        try {
-          const questionPairs = await Promise.all(
-            data.map(async (batch) => {
-              try {
-                const qs = await getBatchQuestions(batch.batchId);
-                return [batch.batchId, qs] as const;
-              } catch {
-                return [batch.batchId, []] as const;
-              }
-            })
-          );
-          if (isMounted) {
-            setBatchQuestionsMap(Object.fromEntries(questionPairs));
-            setIsLoading(false);
-          }
-        } catch (err) {
-          console.error("Failed to fetch batch questions:", err);
-          if (isMounted) {
-            setIsLoading(false);
-          }
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to list batches:", err);
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      });
+      .then(data => { if (isMounted) { setBatches(data); setIsLoading(false); } })
+      .catch(error => { if (isMounted) { setLoadError(messageOf(error)); setIsLoading(false); } });
 
     return () => {
       isMounted = false;
@@ -116,12 +81,11 @@ export default function ReviewBatchesPage() {
     > = {};
 
     batches.forEach((batch) => {
-      const qs = batchQuestionsMap[batch.batchId] || [];
-      const total = qs.length;
-      const approved = qs.filter((q) => q.status === "approved").length;
-      const flagged = qs.filter((q) => q.status === "flagged").length;
+      const total = batch.questionCount;
+      const approved = batch.approvedCount;
+      const flagged = batch.flaggedCount;
       const reviewed = approved + flagged;
-      const pending = qs.filter((q) => q.status === "pending").length;
+      const pending = batch.pendingCount;
 
       const progressPercent =
         total > 0 ? Math.min(100, Math.round((reviewed / total) * 100)) : 0;
@@ -147,7 +111,7 @@ export default function ReviewBatchesPage() {
     });
 
     return map;
-  }, [batches, batchQuestionsMap]);
+  }, [batches]);
 
   // Aggregate global counts
   const { totalQuestions, approvedCount, flaggedCount, pendingCount } =
@@ -206,6 +170,7 @@ export default function ReviewBatchesPage() {
     setStatusFilter("all");
   };
 
+  if (loadError) return <AdminAuthGuard><div className="p-6" role="alert">{loadError}<button className="ml-4 underline" onClick={() => location.reload()}>Retry</button></div></AdminAuthGuard>;
   return (
     <AdminAuthGuard>
       <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">

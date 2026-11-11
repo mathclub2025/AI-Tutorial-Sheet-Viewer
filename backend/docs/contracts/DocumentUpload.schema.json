@@ -1,0 +1,124 @@
+{
+  "$defs": {
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "filename": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Filename",
+      "type": "string"
+    },
+    "content_type": {
+      "maxLength": 127,
+      "minLength": 1,
+      "title": "Content Type",
+      "type": "string"
+    },
+    "size_bytes": {
+      "exclusiveMinimum": 0,
+      "maximum": 15728640,
+      "title": "Size Bytes",
+      "type": "integer"
+    },
+    "sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sha256"
+    },
+    "client_upload_key": {
+      "maxLength": 128,
+      "minLength": 8,
+      "pattern": "^[\\w.:-]+$",
+      "title": "Client Upload Key",
+      "type": "string"
+    },
+    "title": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Title",
+      "type": "string"
+    },
+    "document_type": {
+      "enum": [
+        "question_paper",
+        "answer_sheet",
+        "tutorial_sheet",
+        "other"
+      ],
+      "title": "Document Type",
+      "type": "string"
+    },
+    "source_type": {
+      "$ref": "#/$defs/SourceType"
+    },
+    "subject": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Subject",
+      "type": "string"
+    },
+    "module": {
+      "anyOf": [
+        {
+          "maxLength": 100,
+          "minLength": 1,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Module"
+    },
+    "year": {
+      "anyOf": [
+        {
+          "maximum": 2100,
+          "minimum": 1990,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Year"
+    },
+    "process": {
+      "default": true,
+      "title": "Process",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "filename",
+    "content_type",
+    "size_bytes",
+    "client_upload_key",
+    "title",
+    "document_type",
+    "source_type",
+    "subject"
+  ],
+  "title": "DocumentUpload",
+  "type": "object"
+}

@@ -1,0 +1,75 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "filename": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Filename",
+      "type": "string"
+    },
+    "content_type": {
+      "maxLength": 127,
+      "minLength": 1,
+      "title": "Content Type",
+      "type": "string"
+    },
+    "size_bytes": {
+      "exclusiveMinimum": 0,
+      "maximum": 15728640,
+      "title": "Size Bytes",
+      "type": "integer"
+    },
+    "sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sha256"
+    },
+    "client_upload_key": {
+      "maxLength": 128,
+      "minLength": 8,
+      "pattern": "^[\\w.:-]+$",
+      "title": "Client Upload Key",
+      "type": "string"
+    },
+    "document_id": {
+      "maxLength": 128,
+      "minLength": 1,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "title": "Document Id",
+      "type": "string"
+    },
+    "document_version": {
+      "maxLength": 100,
+      "minLength": 1,
+      "title": "Document Version",
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "question_image",
+        "solution_image"
+      ],
+      "title": "Kind",
+      "type": "string"
+    }
+  },
+  "required": [
+    "filename",
+    "content_type",
+    "size_bytes",
+    "client_upload_key",
+    "document_id",
+    "document_version",
+    "kind"
+  ],
+  "title": "AssetUpload",
+  "type": "object"
+}

@@ -1,15 +1,24 @@
 export interface Question {
   id: string;
   subject: string;
-  module: number;
+  module: string | number;
   topics: string[];
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: "easy" | "medium" | "hard" | "unassigned";
   sheetType: "tutorial" | "pyq";
   year?: number;
   status: "pending" | "approved" | "flagged";
   questionImageUrl: string;
   solutionImageUrl: string;
   flagNote?: string;
+  revision: number;
+  documentId: string;
+  documentVersion: string;
+  text: string;
+  officialSolution?: string;
+  solutionStatus?: string;
+  solutionAssetId?: string | null;
+  solutionDocumentId?: string | null;
+  approveSolution?: boolean;
 }
 
 export interface UploadMeta {

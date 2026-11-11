@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { messageOf } from "./api";
 import { searchQuestions } from "./studentApi";
 import type { Conversation, Message, Project, Settings } from "./studentTypes";
 
@@ -109,6 +110,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const saved = load<Partial<Settings> & { email?: string }>("mc.settings", {});
     if (saved.name === "Student") saved.name = ""; // placeholder from an earlier build
+    // Initialize browser-only state or reset a dialog draft when its source changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettings({ ...DEFAULT_SETTINGS, ...saved });
     setConversations(load("mc.chats.v2", []));
     setProjects(load("mc.projects.v2", []));
@@ -119,7 +122,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => { if (ready) save("mc.settings", settings); }, [settings, ready]);
-  useEffect(() => { if (ready) save("mc.chats.v2", conversations); }, [conversations, ready]);
+  useEffect(() => { if (ready) save("mc.chats.v2", conversations.map(c => ({ ...c, messages: c.messages.map(m => m.result ? ({ ...m, result: { ...m.result, questions: m.result.questions.map(q => ({ id: q.id, text: [], topics: [], keywords: [], subject: "", module: "", source: { type: q.source.type, label: "" }, steps: [], answer: "" })) } }) : m) }))); }, [conversations, ready]);
   useEffect(() => { if (ready) save("mc.projects.v2", projects); }, [projects, ready]);
   useEffect(() => { if (ready) save("mc.bookmarks.v2", bookmarks); }, [bookmarks, ready]);
   useEffect(() => { if (ready) save("mc.solved.v2", solved); }, [solved, ready]);
@@ -182,8 +185,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             : "I couldn't match that to any topic yet. Try naming a topic, like “variance”, “Bayes theorem” or “eigenvalues”.",
         };
         setConversations((p) => p.map((c) => (c.id === cid ? { ...c, updatedAt: Date.now(), messages: [...c.messages, reply] } : c)));
-      } catch {
-        notify("Couldn't reach the question bank. Try again.");
+      } catch (error) {
+        notify(messageOf(error));
       } finally {
         setLoading(false);
       }

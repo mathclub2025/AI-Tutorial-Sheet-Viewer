@@ -1,0 +1,29 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "answer": {
+      "maxLength": 30000,
+      "minLength": 1,
+      "title": "Answer",
+      "type": "string"
+    },
+    "used_question_ids": {
+      "items": {
+        "maxLength": 128,
+        "minLength": 1,
+        "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+        "type": "string"
+      },
+      "maxItems": 10,
+      "minItems": 1,
+      "title": "Used Question Ids",
+      "type": "array"
+    }
+  },
+  "required": [
+    "answer",
+    "used_question_ids"
+  ],
+  "title": "AgentAnswer",
+  "type": "object"
+}

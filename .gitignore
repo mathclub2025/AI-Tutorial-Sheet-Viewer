@@ -1,30 +1,15 @@
-# OS / editor
-.DS_Store
-Thumbs.db
-.idea/
-
-# Frontend (Next.js)
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-frontend/next-env.d.ts
-frontend/*.tsbuildinfo
-frontend/.env*
-!frontend/.env.example
-
-# Backend (Python pipeline / API)
-backend/.venv/
-backend/venv/
-__pycache__/
-*.pyc
-!.env.example
-
-# Pipeline data — keep out of git; large and regenerable
-backend/data/raw/
-backend/data/crops/
-backend/models/*.pt
-backend/models/*.pth
-backend/models/*.onnx
-*.log
-config.bat
-node_modules
+**/.venv/
+**/node_modules/
+**/.next/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.test-*/
+**/*.egg-info/
+**/.env
+**/.env.local
+**/lint-report.json
+**/*.tsbuildinfo
+**/migration-check.sql
+**/.tmp/
+*.zip

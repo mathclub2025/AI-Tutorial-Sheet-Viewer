@@ -1,0 +1,33 @@
+{
+  "$defs": {
+    "SourceType": {
+      "enum": [
+        "tutorial",
+        "pyq",
+        "practice"
+      ],
+      "title": "SourceType",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "expected_source_type": {
+      "$ref": "#/$defs/SourceType"
+    },
+    "source_type": {
+      "enum": [
+        "tutorial",
+        "pyq"
+      ],
+      "title": "Source Type",
+      "type": "string"
+    }
+  },
+  "required": [
+    "expected_source_type",
+    "source_type"
+  ],
+  "title": "DocumentClassification",
+  "type": "object"
+}

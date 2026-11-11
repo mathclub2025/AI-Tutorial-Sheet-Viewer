@@ -1,0 +1,31 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "texts": {
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Texts",
+      "type": "array"
+    },
+    "model": {
+      "maxLength": 255,
+      "minLength": 1,
+      "title": "Model",
+      "type": "string"
+    },
+    "request_id": {
+      "title": "Request Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "texts",
+    "model",
+    "request_id"
+  ],
+  "title": "EmbeddingRequest",
+  "type": "object"
+}

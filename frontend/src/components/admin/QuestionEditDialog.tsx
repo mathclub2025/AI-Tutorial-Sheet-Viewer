@@ -23,13 +23,15 @@ import {
 import { ImageViewerDialog } from "@/components/admin/ImageViewerDialog";
 import { TagEditor } from "@/components/admin/TagEditor";
 import { ZoomIn, Maximize2, Columns2, Edit3 } from "lucide-react";
+import { uploadSolution, uploadAnswerSheet } from "@/lib/adminApi";
+import { messageOf } from "@/lib/api";
 import { toast } from "sonner";
 
 export interface QuestionEditDialogProps {
   question: Question;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (id: string, updates: Partial<Question>) => void;
+  onSave: (id: string, updates: Partial<Question>) => Promise<void>;
 }
 
 export function QuestionEditDialog({
@@ -39,8 +41,8 @@ export function QuestionEditDialog({
   onSave,
 }: QuestionEditDialogProps) {
   const [subject, setSubject] = React.useState<string>(question.subject);
-  const [module, setModule] = React.useState<number>(question.module);
-  const [difficulty, setDifficulty] = React.useState<"easy" | "medium" | "hard">(
+  const [module, setModule] = React.useState<string>(String(question.module));
+  const [difficulty, setDifficulty] = React.useState<Question["difficulty"]>(
     question.difficulty
   );
   const [sheetType, setSheetType] = React.useState<"tutorial" | "pyq">(
@@ -59,25 +61,41 @@ export function QuestionEditDialog({
   } | null>(null);
 
   React.useEffect(() => {
+    // Initialize browser-only state or reset a dialog draft when its source changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setSubject(question.subject);
-    setModule(question.module);
+    setModule(String(question.module));
     setDifficulty(question.difficulty);
     setSheetType(question.sheetType);
     setSolutionImageUrl(question.solutionImageUrl);
     setTopics(question.topics || []);
-  }, [question.id, question.topics]);
+  }, [question, open]);
 
-  const handleSave = () => {
-    onSave(question.id, {
+  const [saving, setSaving] = React.useState(false);
+  const [answerFile, setAnswerFile] = React.useState<File | null>(null);
+  const [solutionFile, setSolutionFile] = React.useState<File | null>(null);
+  const [solutionText, setSolutionText] = React.useState(question.officialSolution || "");
+  const [questionText, setQuestionText] = React.useState(question.text);
+    // Initialize browser-only state or reset a dialog draft when its source changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+  React.useEffect(() => { if (open) { setAnswerFile(null); setSolutionFile(null); setSolutionText(question.officialSolution || ""); setQuestionText(question.text); } }, [open, question]);
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+    const source = answerFile ? await uploadAnswerSheet(answerFile, question) : undefined;
+    const solutionAssetId = solutionFile ? await uploadSolution(solutionFile, question, source) : undefined;
+    await onSave(question.id, {
       subject,
       module,
       difficulty,
-      sheetType,
-      solutionImageUrl,
+      text: questionText,
+      officialSolution: solutionText,
+      ...(source ? { solutionDocumentId: source.id, solutionAssetId: solutionAssetId || null } : solutionAssetId ? { solutionAssetId, solutionDocumentId: null } : {}),
       topics,
     });
     onOpenChange(false);
-    toast.success("Changes saved");
+    toast.success("Changes saved; review is required again.");
+    } catch (error) { toast.error(messageOf(error)); } finally { setSaving(false); }
   };
 
   return (
@@ -116,16 +134,14 @@ export function QuestionEditDialog({
             {/* Module */}
             <div className="space-y-1.5">
               <Label htmlFor="edit-module" className="text-xs font-medium text-zinc-300">
-                Module (1-12)
+                Module
               </Label>
               <Input
                 id="edit-module"
-                type="number"
-                min={1}
-                max={12}
+                type="text"
                 value={module}
-                onChange={(e) => setModule(Number(e.target.value))}
-                placeholder="1-12"
+                onChange={(e) => setModule(e.target.value)}
+                placeholder="Module 1 or module name"
                 className="bg-[#0A0A0C] border border-white/[0.12] text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:border-zinc-400 focus-visible:ring-1 focus-visible:ring-zinc-400/20 text-sm h-9.5 font-mono shadow-2xs font-medium"
               />
             </div>
@@ -146,6 +162,7 @@ export function QuestionEditDialog({
                     <SelectValue placeholder="Select difficulty" />
                   </SelectTrigger>
                   <SelectContent className="rounded-lg border border-white/[0.1] bg-[#121215] text-zinc-100 shadow-2xl">
+                    <SelectItem value="unassigned">Unassigned</SelectItem>
                     <SelectItem value="easy" className="cursor-pointer hover:bg-white/[0.06] text-zinc-200">Easy</SelectItem>
                     <SelectItem value="medium" className="cursor-pointer hover:bg-white/[0.06] text-zinc-200">Medium</SelectItem>
                     <SelectItem value="hard" className="cursor-pointer hover:bg-white/[0.06] text-zinc-200">Hard</SelectItem>
@@ -155,9 +172,10 @@ export function QuestionEditDialog({
 
               <div className="space-y-1.5">
                 <Label className="text-xs font-medium text-zinc-300">
-                  Sheet Type
+                  Sheet Type (change at batch level)
                 </Label>
                 <Select
+                  disabled
                   value={sheetType}
                   onValueChange={(val: "tutorial" | "pyq") => setSheetType(val)}
                 >
@@ -172,19 +190,16 @@ export function QuestionEditDialog({
               </div>
             </div>
 
-            {/* Solution Image URL */}
-            <div className="space-y-1.5">
-              <Label htmlFor="edit-solution-image-url" className="text-xs font-medium text-zinc-300">
-                Solution Image URL (re-pair if mismatched)
-              </Label>
-              <Input
-                id="edit-solution-image-url"
-                type="text"
-                value={solutionImageUrl}
-                onChange={(e) => setSolutionImageUrl(e.target.value)}
-                placeholder="https://..."
-                className="bg-[#0A0A0C] border border-white/[0.12] text-zinc-100 placeholder:text-zinc-500 rounded-lg focus-visible:border-zinc-400 focus-visible:ring-1 focus-visible:ring-zinc-400/20 text-xs font-mono h-9.5 shadow-2xs"
-              />
+            <div className="space-y-2">
+              <Label htmlFor="edit-question-text">Question text</Label>
+              <textarea id="edit-question-text" className="w-full rounded border border-zinc-700 bg-[#0A0A0C] p-2" value={questionText} onChange={e => setQuestionText(e.target.value)} />
+              <Label htmlFor="edit-solution-text">Official solution text</Label>
+              <textarea id="edit-solution-text" className="w-full rounded border border-zinc-700 bg-[#0A0A0C] p-2" value={solutionText} onChange={e => setSolutionText(e.target.value)} />
+              <Label htmlFor="edit-answer-sheet">Separate answer sheet (optional, requires upload permission)</Label>
+              <Input id="edit-answer-sheet" type="file" accept="application/pdf,image/png,image/jpeg" onChange={e => setAnswerFile(e.target.files?.[0] || null)} />
+              <Label htmlFor="edit-solution-file">Replace solution image (PNG/JPEG, up to 15 MB)</Label>
+              <Input id="edit-solution-file" type="file" accept="image/png,image/jpeg" onChange={e => setSolutionFile(e.target.files?.[0] || null)} />
+              <p className="text-xs text-zinc-400">The image is verified and saved with the selected answer sheet, or this question sheet. Existing pairing is preserved unless replaced.</p>
             </div>
 
             {/* Topic Tags */}
@@ -256,11 +271,10 @@ export function QuestionEditDialog({
                     }}
                     className="group relative cursor-zoom-in rounded-xl border border-zinc-300 bg-white p-2.5 flex items-center justify-center min-h-[120px] hover:border-zinc-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-zinc-400 transition-all shadow-xs"
                   >
-                    <img
-                      src={question.questionImageUrl}
+                    {question.questionImageUrl ? <img src={question.questionImageUrl}
                       alt="Current Question"
                       className="max-h-36 w-auto max-w-full object-contain rounded"
-                    />
+                    /> : <p className="text-zinc-900 whitespace-pre-wrap">{question.text}</p>}
                     <div className="absolute bottom-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity bg-[#0A0A0C]/90 text-white border border-white/[0.12] shadow-xs rounded px-1.5 py-0.5 text-[10px] flex items-center gap-1 pointer-events-none font-medium">
                       <Maximize2 className="h-2.5 w-2.5 text-[#E2B86B]" />
                       <span>Full size</span>
@@ -330,7 +344,7 @@ export function QuestionEditDialog({
             <Button
               type="button"
               variant="default"
-              onClick={handleSave}
+              disabled={saving || !questionText.trim() || !subject.trim()} onClick={handleSave}
               className="rounded-lg bg-[#F4F0EA] hover:bg-white active:scale-[0.98] text-[#0A0A0C] font-semibold h-9 px-4 text-xs cursor-pointer transition-all shadow-sm border-0"
             >
               Save Changes

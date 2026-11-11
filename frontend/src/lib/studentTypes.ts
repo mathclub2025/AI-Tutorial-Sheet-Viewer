@@ -1,6 +1,6 @@
 /** Shapes mirror the JSON the segmentation pipeline will emit for the student practice portal. */
 
-export type SourceType = "Tutorial" | "PYQ";
+export type SourceType = "Tutorial" | "PYQ" | "Practice";
 
 export interface SolutionStep {
   title: string;
@@ -15,7 +15,7 @@ export interface Question {
   keywords: string[];
   source: { type: SourceType; label: string; year?: number };
   marks?: number;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty?: "Easy" | "Medium" | "Hard";
   /** URL of the cropped question image. Falls back to `text` rendering when absent. */
   imageUrl?: string;
   text: string[];

@@ -1,5 +1,7 @@
 "use client";
 
+import { api, json, messageOf } from "@/lib/api";
+import { toast } from "sonner";
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,7 +11,6 @@ import {
   Menu,
   X,
   Compass,
-  GraduationCap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -42,55 +43,31 @@ function NavLinks({ onItemClick }: NavLinksProps) {
     },
   ];
 
-  const isStudentActive = pathname === "/student" || pathname?.startsWith("/student");
-
   return (
-    <div className="flex-1 flex flex-col justify-between min-h-0">
-      <nav className="px-3 py-4 space-y-1.5" aria-label="Admin Navigation">
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onItemClick}
-              className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
-                item.isActive
-                  ? "bg-white/[0.08] text-white font-medium border border-white/[0.1] shadow-xs"
-                  : "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04] border border-transparent font-normal"
-              }`}
-            >
-              <Icon
-                className={`h-4 w-4 shrink-0 ${
-                  item.isActive ? "text-white" : "text-zinc-400"
-                }`}
-              />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="p-3 border-t border-white/[0.07]">
-        <Link
-          href="/student"
-          onClick={onItemClick}
-          aria-label="Student Portal"
-          className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
-            isStudentActive
-              ? "bg-white/[0.08] text-white font-medium border border-white/[0.1] shadow-xs"
-              : "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04] border border-transparent font-normal"
-          }`}
-        >
-          <GraduationCap
-            className={`h-4 w-4 shrink-0 ${
-              isStudentActive ? "text-white" : "text-zinc-400"
+    <nav className="flex-1 px-3 py-4 space-y-1.5" aria-label="Admin Navigation">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            onClick={onItemClick}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all cursor-pointer ${
+              item.isActive
+                ? "bg-white/[0.08] text-white font-medium border border-white/[0.1] shadow-xs"
+                : "text-zinc-400 hover:text-zinc-100 hover:bg-white/[0.04] border border-transparent font-normal"
             }`}
-          />
-          <span>Student Portal</span>
-        </Link>
-      </div>
-    </div>
+          >
+            <Icon
+              className={`h-4 w-4 shrink-0 ${
+                item.isActive ? "text-white" : "text-zinc-400"
+              }`}
+            />
+            <span>{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
   );
 }
 
@@ -100,6 +77,8 @@ export function AdminSidebar() {
 
   // Close mobile drawer on route changes
   React.useEffect(() => {
+    // Reset transient UI state when navigation or the selected image changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMobileOpen(false);
   }, [pathname]);
 
@@ -154,6 +133,7 @@ export function AdminSidebar() {
             </span>
           </div>
         </div>
+        <button className="text-xs underline" onClick={async () => { try { await api("auth/logout", json("POST", {})); location.assign("/admin/login"); } catch(e) { toast.error(messageOf(e)); } }}>Sign out</button>
       </header>
 
       {/* 2. Accessible Mobile Drawer with Backdrop */}
@@ -197,15 +177,10 @@ export function AdminSidebar() {
 
             <React.Suspense
               fallback={
-                <div className="flex-1 flex flex-col justify-between p-3">
-                  <div className="space-y-1.5">
-                    <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
-                    <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
-                  </div>
-                  <div className="pt-3 border-t border-white/[0.07]">
-                    <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
-                  </div>
-                </div>
+                <nav className="flex-1 p-3 space-y-1">
+                  <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
+                  <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
+                </nav>
               }
             >
               <NavLinks onItemClick={() => setMobileOpen(false)} />
@@ -233,15 +208,10 @@ export function AdminSidebar() {
 
         <React.Suspense
           fallback={
-            <div className="flex-1 flex flex-col justify-between p-3">
-              <div className="space-y-1.5">
-                <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
-                <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
-              </div>
-              <div className="pt-3 border-t border-white/[0.07]">
-                <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
-              </div>
-            </div>
+            <nav className="flex-1 p-3 space-y-1">
+              <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
+              <div className="h-9 bg-zinc-800/50 rounded-md animate-pulse" />
+            </nav>
           }
         >
           <NavLinks />

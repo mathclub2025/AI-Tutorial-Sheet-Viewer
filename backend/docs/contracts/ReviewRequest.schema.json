@@ -1,0 +1,49 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "expected_revision": {
+      "minimum": 1,
+      "title": "Expected Revision",
+      "type": "integer"
+    },
+    "status": {
+      "enum": [
+        "approved",
+        "rejected",
+        "pending_review",
+        "archived"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "note": {
+      "anyOf": [
+        {
+          "maxLength": 2000,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Note"
+    },
+    "approve_solution": {
+      "default": false,
+      "title": "Approve Solution",
+      "type": "boolean"
+    },
+    "flagged": {
+      "default": false,
+      "title": "Flagged",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "expected_revision",
+    "status"
+  ],
+  "title": "ReviewRequest",
+  "type": "object"
+}

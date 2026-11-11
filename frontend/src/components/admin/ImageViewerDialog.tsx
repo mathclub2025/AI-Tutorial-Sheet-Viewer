@@ -43,6 +43,8 @@ export function ImageViewerDialog({
 
   React.useEffect(() => {
     if (open) {
+    // Reset transient UI state when navigation or the selected image changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
       setViewMode(initialMode);
     }
   }, [open, initialMode, imageUrl, pairedImageUrl]);

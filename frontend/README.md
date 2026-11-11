@@ -1,3 +1,9 @@
+# Integrated frontend
+
+See [the project setup guide](../README.md) for the integrated website. Configure server-only backend variables using `.env.example`. The mock admin service and implicit mock student search have been replaced with real backend adapters.
+
+Original frontend notes below are retained as historical context.
+
 # AI-Tutorial-Sheet-Viewer - Frontend
 
 Unified Next.js application containing both the **Student Practice Portal** and the **Admin Question Review & Ingestion Desk** for the Mathematics Club, VIT Chennai.

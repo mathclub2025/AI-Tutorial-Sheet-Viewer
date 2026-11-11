@@ -4,17 +4,21 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import type { Question } from "@/lib/types";
-import { getBatchQuestions, updateQuestion } from "@/lib/adminApi";
+import { getBatchQuestions, updateQuestion, getDocument, type DocumentRecord } from "@/lib/adminApi";
+import { BatchControls } from "@/components/admin/BatchControls";
 import { QuestionReviewCard } from "@/components/admin/QuestionReviewCard";
+import { messageOf, ApiError } from "@/lib/api";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 import { AlertCircle, RotateCcw, ArrowLeft, Layers } from "lucide-react";
 
 type FilterType = "all" | "pending" | "approved" | "flagged";
 
 function ReviewBatchContent() {
   const params = useParams();
+  const [document, setDocument] = React.useState<DocumentRecord | null>(null);
+  const pending = React.useRef(new Set<string>());
+
   const batchId =
     typeof params?.batchId === "string"
       ? params.batchId
@@ -33,37 +37,51 @@ function ReviewBatchContent() {
     setLoadError(null);
 
     try {
-      const data = await getBatchQuestions(batchId);
-      setQuestions(data);
+      const [data, doc] = await Promise.all([getBatchQuestions(batchId), getDocument(batchId)]);
+      setQuestions(data); setDocument(doc);
     } catch (error) {
       console.error("Failed to fetch questions:", error);
-      setLoadError("Failed to load questions for this batch.");
+      setLoadError(messageOf(error));
     } finally {
       setIsLoading(false);
     }
   }, [batchId]);
 
   React.useEffect(() => {
+    // Initialize browser-only state or reset a dialog draft when its source changes.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadQuestions();
   }, [loadQuestions]);
 
+  React.useEffect(() => {
+    if (!document || (!["processing", "queued"].includes(document.processing_status) && document.indexing_status !== "queued")) return;
+    let active = true; let timer: ReturnType<typeof setTimeout>;
+    const poll = async () => {
+      try {
+        const doc = await getDocument(batchId); if (!active) return;
+        setDocument(doc);
+        if (doc.processing_status === "succeeded" && doc.indexing_status !== "queued") { await loadQuestions(); return; }
+        if (doc.processing_status === "failed") return;
+        timer = setTimeout(poll, 3000);
+      } catch(e) { if (active) setLoadError(messageOf(e)); }
+    };
+    timer = setTimeout(poll, 3000);
+    return () => { active = false; clearTimeout(timer); };
+  }, [batchId, document, loadQuestions]);
+
   const handleUpdate = async (id: string, updates: Partial<Question>) => {
-    const previousQuestions = questions;
-
-    setQuestions((prevQuestions) =>
-      prevQuestions.map((q) => (q.id === id ? { ...q, ...updates } : q))
-    );
-
+    if (pending.current.has(id)) throw new Error("Wait for this question to finish saving.");
+    const current = questions.find(q => q.id === id);
+    if (!current) throw new Error("Reload the question before saving.");
+    pending.current.add(id);
     try {
-      const persistedQuestion = await updateQuestion(id, updates);
-      setQuestions((prevQuestions) =>
-        prevQuestions.map((q) => (q.id === id ? persistedQuestion : q))
-      );
+      const saved = await updateQuestion(id, { ...updates, revision: current.revision });
+      setQuestions(prev => prev.map(q => q.id === id ? saved : q));
+      void getDocument(batchId).then(setDocument).catch(error => setLoadError(messageOf(error)));
     } catch (error) {
-      console.error("Failed to update question in mock API:", error);
-      setQuestions(previousQuestions);
-      toast.error("Failed to save changes. Reverting to previous state.");
-    }
+      if (error instanceof ApiError && error.status === 409) await loadQuestions();
+      throw error;
+    } finally { pending.current.delete(id); }
   };
 
   const filteredQuestions =
@@ -132,6 +150,7 @@ function ReviewBatchContent() {
   return (
     <main className="flex-1 p-4 sm:p-6 lg:p-8 min-w-0">
       <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+        {document && <BatchControls doc={document} reload={loadQuestions} />}
         {/* Header with Breadcrumb & Title */}
         <div className="space-y-2 border-b border-white/[0.08] pb-5">
           <div className="flex items-center gap-2 pb-1 text-xs font-medium text-zinc-400">
