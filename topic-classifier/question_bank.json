@@ -1,0 +1,157 @@
+{
+  "questions": [
+    {
+      "id": "PS-T1-01",
+      "source": "tutorial",
+      "year": null,
+      "question_image": "images/q1.png",
+      "solution_image": "images/s1.png",
+      "text": "Find the mean, median and mode of the following frequency distribution.",
+      "subject": "probability_statistics",
+      "module": "M1",
+      "topics": [
+        "central_tendency"
+      ],
+      "topic_keys": [
+        "probability_statistics/M1/central_tendency"
+      ],
+      "confidence": 0.644,
+      "needs_review": false
+    },
+    {
+      "id": "PS-T1-02",
+      "source": "pyq",
+      "year": 2023,
+      "question_image": "images/q2.png",
+      "solution_image": "images/s2.png",
+      "text": "Calculate the variance and standard deviation of the given data.",
+      "subject": "probability_statistics",
+      "module": "M1",
+      "topics": [
+        "dispersion"
+      ],
+      "topic_keys": [
+        "probability_statistics/M1/dispersion"
+      ],
+      "confidence": 0.632,
+      "needs_review": false
+    },
+    {
+      "id": "PS-T2-03",
+      "source": "pyq",
+      "year": 2022,
+      "question_image": "images/q3.png",
+      "solution_image": "images/s3.png",
+      "text": "A factory has three machines. Using Bayes theorem find the probability that a defective item came from machine B.",
+      "subject": "probability_statistics",
+      "module": "M2",
+      "topics": [
+        "conditional_bayes"
+      ],
+      "topic_keys": [
+        "probability_statistics/M2/conditional_bayes"
+      ],
+      "confidence": 0.527,
+      "needs_review": false
+    },
+    {
+      "id": "PS-T3-04",
+      "source": "tutorial",
+      "year": null,
+      "question_image": "images/q4.png",
+      "solution_image": "images/s4.png",
+      "text": "A random variable follows a Poisson distribution with mean 3. Find P(X>=2).",
+      "subject": "probability_statistics",
+      "module": "M3",
+      "topics": [
+        "binomial_poisson",
+        "random_variables"
+      ],
+      "topic_keys": [
+        "probability_statistics/M3/binomial_poisson",
+        "probability_statistics/M2/random_variables"
+      ],
+      "confidence": 0.258,
+      "needs_review": false
+    },
+    {
+      "id": "PS-T3-05",
+      "source": "pyq",
+      "year": 2024,
+      "question_image": "images/q5.png",
+      "solution_image": "images/s5.png",
+      "text": "Fit a line of regression of y on x and find the Karl Pearson correlation coefficient.",
+      "subject": "probability_statistics",
+      "module": "M1",
+      "topics": [
+        "correlation_regression"
+      ],
+      "topic_keys": [
+        "probability_statistics/M1/correlation_regression"
+      ],
+      "confidence": 0.581,
+      "needs_review": false
+    },
+    {
+      "id": "PS-T3-06",
+      "source": "pyq",
+      "year": 2024,
+      "question_image": "images/q6.png",
+      "solution_image": "images/s6.png",
+      "text": "Test the null hypothesis using chi square test at 5 percent level of significance.",
+      "subject": "probability_statistics",
+      "module": "M3",
+      "topics": [
+        "sampling_hypothesis"
+      ],
+      "topic_keys": [
+        "probability_statistics/M3/sampling_hypothesis"
+      ],
+      "confidence": 0.61,
+      "needs_review": false
+    },
+    {
+      "id": "PS-T3-07",
+      "source": "pyq",
+      "year": 2021,
+      "question_image": "images/q7.png",
+      "solution_image": "images/s7.png",
+      "text": "The mode and arithmetic mean of a series are 24 and 28. Find the median using empirical relation.",
+      "subject": "probability_statistics",
+      "module": "M1",
+      "topics": [
+        "central_tendency"
+      ],
+      "topic_keys": [
+        "probability_statistics/M1/central_tendency"
+      ],
+      "confidence": 0.526,
+      "needs_review": false
+    }
+  ],
+  "by_topic": {
+    "probability_statistics/M1/central_tendency": [
+      "PS-T1-01",
+      "PS-T3-07"
+    ],
+    "probability_statistics/M1/dispersion": [
+      "PS-T1-02"
+    ],
+    "probability_statistics/M2/conditional_bayes": [
+      "PS-T2-03"
+    ],
+    "probability_statistics/M3/binomial_poisson": [
+      "PS-T3-04"
+    ],
+    "probability_statistics/M2/random_variables": [
+      "PS-T3-04"
+    ],
+    "probability_statistics/M1/correlation_regression": [
+      "PS-T3-05"
+    ],
+    "probability_statistics/M3/sampling_hypothesis": [
+      "PS-T3-06"
+    ]
+  },
+  "needs_review": []
+}
