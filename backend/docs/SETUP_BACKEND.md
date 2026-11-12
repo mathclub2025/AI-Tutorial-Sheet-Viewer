@@ -15,7 +15,7 @@ In Windows PowerShell:
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -c constraints.txt -e ".[test]"
-Copy-Item .env.backend.example .env
+Copy-Item .env.example .env
 ```
 
 On macOS/Linux:
@@ -23,7 +23,7 @@ On macOS/Linux:
 ```bash
 python3 -m venv .venv
 .venv/bin/python -m pip install -c constraints.txt -e '.[test]'
-cp .env.backend.example .env
+cp .env.example .env
 ```
 
 Activate the environment if desired, or replace `python` in the following commands

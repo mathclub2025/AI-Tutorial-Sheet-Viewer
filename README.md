@@ -44,7 +44,7 @@ Ctrl+C in the launcher stops the services it started. If a port is occupied, sto
 
 ## Configure real services
 
-1. Copy `backend/.env.backend.example` to `backend/.env`. Set PostgreSQL credentials, B2 credentials and the AI service addresses/tokens locally. Do not commit or share these files.
+1. Copy `backend/.env.example` to `backend/.env`. Set PostgreSQL credentials, B2 credentials and the AI service addresses/tokens locally. Do not commit or share these files.
 2. Start PostgreSQL/pgvector, for example with the backend's `compose.postgres.yml`. Run `backend/.venv/Scripts/python.exe -m alembic upgrade head` from `backend/`. This includes the new `d104_portal_metadata` migration. Back up an existing database first.
 3. From `backend/`, run `.venv/Scripts/python.exe -m scripts.create_admin --email YOUR_EMAIL --name "YOUR NAME"` with your actual details, then follow its password prompts. There is no default real admin account.
 4. Configure the AI extraction/callback and embedding contracts in `backend/docs/INTEGRATION_CONTRACT.md`. Until embeddings are ready, keep keyword search selected. Approval queues index work; supervise the worker and retry failed tasks after configuring the service.
