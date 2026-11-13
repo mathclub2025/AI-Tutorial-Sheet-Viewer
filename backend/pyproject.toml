@@ -28,6 +28,7 @@ dependencies = [
 
 [project.optional-dependencies]
 test = ["pytest>=8,<10", "pytest-asyncio>=0.23.0", "ruff>=0.17,<1"]
+embeddings = ["fastembed>=0.3,<2"]
 
 [tool.setuptools.packages.find]
 where = ["."]

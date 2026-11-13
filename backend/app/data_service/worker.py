@@ -10,7 +10,7 @@ import httpx
 from sqlalchemy import and_, func, or_, select
 
 from app.core.errors import ServiceError
-from app.data_service.semantic import LocalEmbeddings, embedding_text, normalize
+from app.data_service.semantic import build_embeddings, embedding_text, normalize
 from app.data_service.settings import DataServiceSettings
 from app.domain.models import DocumentDispatchResponse
 from app.persistence.database import create_database_engine, create_session_factory, session_scope
@@ -29,7 +29,7 @@ log = logging.getLogger("mathclub.worker")
 class Worker:
     def __init__(self, factory, settings, *, embeddings=None, dispatch=None):
         self.factory, self.settings = factory, settings
-        self.embeddings = embeddings or LocalEmbeddings(settings)
+        self.embeddings = embeddings or build_embeddings(settings)
         self.dispatch = dispatch or self._dispatch_http
 
     def _claim(self):
