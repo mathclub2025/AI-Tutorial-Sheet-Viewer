@@ -15,6 +15,7 @@ class DataServiceSettings(BaseSettings):
     ai_data_token: SecretStr | None = Field(None, repr=False)
     person1_base_url: str = "http://127.0.0.1:8000"
     document_dispatch_token: SecretStr | None = Field(None, repr=False)
+    embedding_provider: str = "http"
     embedding_base_url: str | None = None
     embedding_service_token: SecretStr | None = Field(None, repr=False)
     embedding_model: str = "mathclub-local-v1"

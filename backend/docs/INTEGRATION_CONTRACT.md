@@ -193,11 +193,20 @@ can be indexed while its document is private; publication controls student acces
 ## Semantic search and images
 
 `POST /api/v1/search/semantic` accepts the normal search fields plus optional
-`min_score` in [0,1], default 0.2. It returns the existing `SearchResponse` shape.
-The local embedding service generates the query vector; the data service runs
-cosine similarity over approved, public, current-revision vectors with the same
-model identity and requested filters. The initial implementation uses exact
-pgvector distance ordering. A model-specific ANN index has not been added.
+`min_score` in [0,1], default 0.7. The default was raised from 0.2 after
+evaluating BAAI/bge-small-en-v1.5 on the bundled question bank: on-topic top
+similarities measured 0.81-0.89 while unrelated queries peaked at 0.54, so 0.7
+separates them. Re-evaluate this value whenever the embedding model changes and
+override it per request when needed. It returns the existing `SearchResponse` shape.
+The query is split into sentence-based chunks: short queries stay a single chunk,
+empty chunks are discarded and at most 8 chunks are embedded per request. Each
+chunk is embedded independently with the configured provider and searched
+separately over approved, public, current-revision vectors with the same model
+identity and requested filters, keeping up to 10 candidates per chunk. Results
+are merged by question ID, each question keeps its maximum cosine similarity
+across chunks, and the top results are returned with that score. The initial
+implementation uses exact pgvector distance ordering. A model-specific ANN index
+has not been added.
 
 On approval, the worker embeds question text, subject/module/topics and approved
 solution text. Vectors are checked for expected dimensions and finite, nonzero
@@ -220,6 +229,12 @@ Content-Type: application/json
 The three-dimensional response above illustrates the shape only. Each real vector
 must have exactly `EMBEDDING_DIMENSIONS` values (384 by default), and there must
 be one vector per input text in the same order. Model name must match exactly.
+
+Embeddings come from `EMBEDDING_PROVIDER`. The default `http` provider posts to
+the endpoint above. The `fastembed` provider generates vectors in-process from
+`EMBEDDING_MODEL` (BAAI/bge-small-en-v1.5 with 384 dimensions) and never calls
+that endpoint. Indexing and queries always use the same provider, model and
+dimensions.
 
 `GET /api/v1/questions/{id}/assets` uses the existing student API key and returns
 `question_image_url`, `solution_image_url`, `solution_document_id` and

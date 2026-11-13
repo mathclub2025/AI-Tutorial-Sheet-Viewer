@@ -14,7 +14,7 @@ In Windows PowerShell:
 
 ```powershell
 py -3.12 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -c constraints.txt -e ".[test]"
+.\.venv\Scripts\python.exe -m pip install -c constraints.txt -e ".[test,embeddings]"
 Copy-Item .env.example .env
 ```
 
@@ -22,7 +22,7 @@ On macOS/Linux:
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install -c constraints.txt -e '.[test]'
+.venv/bin/python -m pip install -c constraints.txt -e '.[test,embeddings]'
 cp .env.example .env
 ```
 
@@ -157,13 +157,23 @@ Run the AI extraction/answer service at `AI_BASE_URL`. Follow
 `INTEGRATION_CONTRACT.md` for downloads, job identity, terminal callbacks and crops.
 The backend does not include the segmentation/CNN/OCR models.
 
-For semantic retrieval, configure `EMBEDDING_BASE_URL`, its credential, a stable
-`EMBEDDING_MODEL` identifier and matching `EMBEDDING_DIMENSIONS`. The service must
-generate vectors locally and implement `POST /internal/v1/embeddings`. No paid
-external AI API is required by this backend. Changing the model or dimensions
+For semantic retrieval choose `EMBEDDING_PROVIDER`. The default `fastembed`
+provider generates vectors in-process: install it with
+`pip install -c constraints.txt -e ".[test,embeddings]"`, then set
+`EMBEDDING_MODEL=BAAI/bge-small-en-v1.5` and `EMBEDDING_DIMENSIONS=384`; the model
+downloads on first use. Alternatively set `EMBEDDING_PROVIDER=http` and configure
+`EMBEDDING_BASE_URL`, its credential and a stable `EMBEDDING_MODEL` for an external
+service implementing `POST /internal/v1/embeddings`. Indexing and queries always
+use the same provider, model and dimensions. Changing the model or dimensions
 requires a new model identifier and reindexing approved questions. Use
 `POST /api/v1/admin/questions/{id}/reindex` for each approved question, with pagination
 over the review list. Failed tasks can be retried after configuration is corrected.
+
+Load the bundled question bank into PostgreSQL for local retrieval work with
+`python -m scripts.import_question_bank`. The importer is idempotent, groups the
+records into synthetic documents by source and year, marks approved questions
+public, and queues index tasks. Add `--index` to run the worker until the queue
+drains, or run `python -m app.data_service.worker` separately.
 
 Existing `/search` continues keyword retrieval. `/search/semantic` requires the
 local embedding service and current approved vectors. It never returns demo or

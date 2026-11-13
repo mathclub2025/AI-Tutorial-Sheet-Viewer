@@ -19,7 +19,7 @@ from app.data_service.api import (
 from app.data_service.ingestion_api import add_student_extensions
 from app.data_service.ingestion_api import router as ingestion_router
 from app.data_service.management_api import router as management_router
-from app.data_service.semantic import LocalEmbeddings
+from app.data_service.semantic import build_embeddings
 from app.data_service.service import DataService
 from app.data_service.settings import DataServiceSettings
 from app.persistence.database import create_database_engine, create_session_factory
@@ -70,7 +70,7 @@ def create_data_app(
     app.state.session_factory = factory
     app.state.data_service = DataService()
     app.state.storage = storage
-    app.state.embeddings = embeddings or LocalEmbeddings(config)
+    app.state.embeddings = embeddings or build_embeddings(config)
     app.state.stats = RuntimeStats()
     app.state.login_limiter = WindowLimiter()
     app.add_middleware(GuardMiddleware, settings=config, stats=app.state.stats)

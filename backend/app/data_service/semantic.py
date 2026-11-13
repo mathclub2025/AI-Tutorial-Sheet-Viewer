@@ -1,6 +1,8 @@
-"""Optional local embedding service and exact pgvector search, without cloud AI dependencies."""
+"""Embedding providers, query chunking and exact pgvector semantic search."""
 
 import math
+import re
+import threading
 from uuid import uuid4
 
 import httpx
@@ -11,6 +13,10 @@ from app.data_service.service import DataService
 from app.domain.management import EmbeddingRequest, EmbeddingResponse
 from app.domain.models import SearchEnvelope, SearchHit
 from app.persistence.models import Answer, QuestionEmbedding, QuestionRecord
+
+MAX_QUERY_CHUNKS = 8
+CANDIDATES_PER_CHUNK = 10
+SENTENCE_BOUNDARY = re.compile(r"(?<=[.?!])\s+|\n+")
 
 
 def normalize(vector, dimensions):
@@ -80,6 +86,65 @@ class LocalEmbeddings:
                 client.close()
 
 
+class FastEmbedEmbeddings:
+    def __init__(self, settings):
+        self.settings = settings
+        self._model = None
+        self._lock = threading.Lock()
+
+    def _load(self):
+        try:
+            from fastembed import TextEmbedding
+        except ImportError as exc:
+            raise ServiceError(
+                "EMBEDDING_PROVIDER_UNAVAILABLE", "Install the fastembed embedding extra", 503
+            ) from exc
+        try:
+            return TextEmbedding(model_name=self.settings.embedding_model)
+        except Exception as exc:
+            raise ServiceError(
+                "EMBEDDING_PROVIDER_UNAVAILABLE",
+                "The configured fastembed embedding model could not be loaded",
+                503,
+            ) from exc
+
+    def instance(self):
+        with self._lock:
+            if self._model is None:
+                self._model = self._load()
+            return self._model
+
+    def embed(self, texts):
+        if not texts:
+            raise ServiceError(
+                "INVALID_EMBEDDING", "Embedding requests require at least one text", 502
+            )
+        model = self.instance()
+        try:
+            vectors = list(model.embed(texts))
+        except Exception as exc:
+            raise ServiceError(
+                "EMBEDDING_PROVIDER_UNAVAILABLE", "The fastembed model rejected the batch", 503
+            ) from exc
+        if len(vectors) != len(texts):
+            raise ServiceError("INVALID_EMBEDDING", "Embedding batch count does not match", 502)
+        return [normalize(vector, self.settings.embedding_dimensions) for vector in vectors]
+
+
+def build_embeddings(settings):
+    provider = (settings.embedding_provider or "http").lower()
+    if provider == "http":
+        return LocalEmbeddings(settings)
+    if provider == "fastembed":
+        return FastEmbedEmbeddings(settings)
+    raise ServiceError("EMBEDDING_PROVIDER_UNKNOWN", "Configure a supported embedding provider", 503)
+
+
+def chunk_query(query, max_chunks=MAX_QUERY_CHUNKS):
+    parts = [part.strip() for part in SENTENCE_BOUNDARY.split(query) if part.strip()]
+    return parts[:max_chunks]
+
+
 def embedding_text(session, question):
     answer = session.scalar(
         select(Answer)
@@ -105,8 +170,11 @@ def embedding_text(session, question):
 
 
 def semantic_search(session, payload, embeddings, config):
-    vector = normalize(embeddings.embed([payload.query])[0], config.embedding_dimensions)
-    statement = (
+    chunks = chunk_query(payload.query)
+    if not chunks:
+        return SearchEnvelope(items=[])
+    vectors = embeddings.embed(chunks)
+    base = (
         DataService()
         ._question_query(payload.filters)
         .join(
@@ -118,30 +186,42 @@ def semantic_search(session, payload, embeddings, config):
             QuestionEmbedding.content_revision == QuestionRecord.revision,
         )
     )
+    best = {}
     if session.bind.dialect.name == "postgresql":
-        # Exact nearest-neighbour query. A model-specific HNSW index can be added
-        # when the model and dimensions are frozen; no Python-side corpus scan.
-        distance = QuestionEmbedding.embedding.cosine_distance(vector)
-        rows = session.execute(
-            statement.add_columns(distance.label("distance"))
-            .where(distance <= 1 - payload.min_score)
-            .order_by(distance, QuestionRecord.external_id)
-            .limit(payload.limit)
-        ).all()
-        ranked = [(max(0.0, min(1.0, 1 - d)), q) for q, d in rows]
+        for vector in vectors:
+            distance = QuestionEmbedding.embedding.cosine_distance(
+                normalize(vector, config.embedding_dimensions)
+            )
+            rows = session.execute(
+                base.add_columns(distance.label("distance"))
+                .where(distance <= 1 - payload.min_score)
+                .order_by(distance, QuestionRecord.external_id)
+                .limit(CANDIDATES_PER_CHUNK)
+            ).all()
+            for question, value in rows:
+                score = max(0.0, min(1.0, 1 - value))
+                current = best.get(question.id)
+                if current is None or score > current[0]:
+                    best[question.id] = (score, question)
     else:
-        # SQLite is supported for tests only; deployment uses PostgreSQL/pgvector.
-        ranked = []
-        for q in session.scalars(statement):
-            stored = session.get(QuestionEmbedding, q.id)
-            v = normalize(stored.embedding, config.embedding_dimensions)
-            score = max(0.0, min(1.0, sum(a * b for a, b in zip(vector, v, strict=True))))
-            if score >= payload.min_score:
-                ranked.append((score, q))
-        ranked.sort(key=lambda pair: (-pair[0], pair[1].external_id))
+        for vector in vectors:
+            query_vector = normalize(vector, config.embedding_dimensions)
+            for question in session.scalars(base):
+                stored = session.get(QuestionEmbedding, question.id)
+                stored_vector = normalize(stored.embedding, config.embedding_dimensions)
+                score = max(
+                    0.0,
+                    min(1.0, sum(a * b for a, b in zip(query_vector, stored_vector, strict=True))),
+                )
+                if score < payload.min_score:
+                    continue
+                current = best.get(question.id)
+                if current is None or score > current[0]:
+                    best[question.id] = (score, question)
+    ranked = sorted(best.values(), key=lambda pair: (-pair[0], pair[1].external_id))
     return SearchEnvelope(
         items=[
-            SearchHit(question=DataService._to_question(session, q), relevance_score=s)
-            for s, q in ranked[: payload.limit]
+            SearchHit(question=DataService._to_question(session, question), relevance_score=score)
+            for score, question in ranked[: payload.limit]
         ]
     )

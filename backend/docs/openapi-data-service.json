@@ -6162,7 +6162,7 @@
             "maximum": 1.0,
             "minimum": 0.0,
             "title": "Min Score",
-            "default": 0.2
+            "default": 0.7
           }
         },
         "additionalProperties": false,

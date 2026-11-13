@@ -239,7 +239,7 @@ class DownloadView(StrictModel):
 
 
 class SemanticSearchRequest(SearchRequest):
-    min_score: float = Field(default=0.2, ge=0, le=1, allow_inf_nan=False)
+    min_score: float = Field(default=0.7, ge=0, le=1, allow_inf_nan=False)
 
 
 class EmbeddingRequest(StrictModel):
