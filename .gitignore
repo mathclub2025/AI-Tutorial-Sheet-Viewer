@@ -38,5 +38,5 @@ htmlcov/
 .DS_Store
 Thumbs.db
 powershell.bat
-config.bat
 node_modules
+config.bat
