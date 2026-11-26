@@ -12,4 +12,3 @@
 **/migration-check.sql
 **/.tmp/
 *.zip
-config.bat
