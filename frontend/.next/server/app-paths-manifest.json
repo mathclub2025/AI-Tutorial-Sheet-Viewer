@@ -1,0 +1,13 @@
+{
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/admin/login/page": "app/admin/login/page.js",
+  "/admin/review/[batchId]/page": "app/admin/review/[batchId]/page.js",
+  "/admin/review/page": "app/admin/review/page.js",
+  "/admin/upload/page": "app/admin/upload/page.js",
+  "/api/assets/[id]/route": "app/api/assets/[id]/route.js",
+  "/api/backend/[...path]/route": "app/api/backend/[...path]/route.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js",
+  "/student/page": "app/student/page.js"
+}

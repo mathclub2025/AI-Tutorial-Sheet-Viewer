@@ -1,0 +1,41 @@
+{
+  "status": 200,
+  "headers": {
+    "link": "</_next/static/media/7c42b85337e0c4bb-s.p.012bmydply3go.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/9a321a2c78eff0b5-s.p.1bkzbscqrt8rl.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\", </_next/static/media/c0680f1bdb3a2e90-s.p.1gsd1jahc5dg_.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/login/layout,_N_T_/admin/login/page,_N_T_/admin/login"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/admin/login/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 49216,
+    "slots": {
+      "children": {
+        "hints": 49248,
+        "slots": {
+          "children": {
+            "hints": 49248,
+            "slots": {
+              "children": {
+                "hints": 49312,
+                "slots": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/6a10a526da73ed91eae0fb55a2752fc40011a6792de85c7d1f178a436f5e126a/$/admin/login",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/admin/login/page"
+    },
+    "isFallback": false
+  }
+}

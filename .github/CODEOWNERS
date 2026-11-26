@@ -1,0 +1,9 @@
+# Security-sensitive paths requiring maintainer review (enable "Require review from Code Owners" in GitHub)
+/.github/workflows/ @prodhosh @coder1380
+/backend/.github/workflows/ @prodhosh @coder1380
+**/package.json @prodhosh @coder1380
+**/package-lock.json @prodhosh @coder1380
+/frontend/eslint.config.mjs @prodhosh @coder1380
+/frontend/postcss.config.mjs @prodhosh @coder1380
+/.gitignore @prodhosh @coder1380
+/.github/CODEOWNERS @prodhosh @coder1380
