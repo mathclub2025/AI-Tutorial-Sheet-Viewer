@@ -27,4 +27,3 @@ backend/models/*.pth
 backend/models/*.onnx
 *.log
 node_modules
-config.bat
