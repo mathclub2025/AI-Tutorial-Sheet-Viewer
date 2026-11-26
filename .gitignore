@@ -12,3 +12,9 @@
 **/migration-check.sql
 **/.tmp/
 *.zip
+
+# Environment secrets (preserve example templates)
+**/.env
+**/.env.*
+!**/.env.example
+!**/.env.*.example
