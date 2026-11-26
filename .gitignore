@@ -6,7 +6,6 @@
 **/.ruff_cache/
 **/.test-*/
 **/*.egg-info/
-**/.env
 **/.env.local
 **/lint-report.json
 **/*.tsbuildinfo
